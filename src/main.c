@@ -14,6 +14,13 @@ typedef struct {
 } http_client_t;
 
 
+typedef struct {
+    int port;
+} chimp_settings_t;
+
+static chimp_settings_t chimp_settings;
+
+
 uv_buf_t on_alloc(uv_handle_t* handle, size_t suggested_size)
 {
     uv_buf_t buf;
@@ -108,14 +115,63 @@ void on_connected(uv_stream_t* server, int status)
 }
 
 
+static void print_version()
+{
+    printf("chimp: chimp %s\n", VERSION);
+    exit(0);
+}
+
+
+static void usage(const char *program_name)
+{
+    printf("usage: %s [option] [arg] ...\n", program_name);
+    printf("Options and arguments:\n"
+           "-p      : server port to bind to\n"
+           "-h      : print this help screen and exit\n"
+           "-v      : print version and exit\n"
+           );
+
+    exit(0);
+}
+
+
+static void parse_command_line(int argc, const char *argv[])
+{
+    int cmd_option;
+    extern char *optarg;
+
+    memset(&chimp_settings, 0, sizeof(chimp_settings));
+    while ((cmd_option = getopt(argc, argv, "hvp:")) != -1) {
+        switch (cmd_option) {
+            case 'v':
+                print_version();
+                break;
+            case 'p':
+                chimp_settings.port = strtol(optarg, NULL, 10);
+                break;
+            case 'h':
+            default:
+                usage(argv[0]);
+        }
+    }
+
+    if (chimp_settings.port <= 0) {
+        printf("missing port number\n");
+        usage(argv[0]);
+    }
+}
+
+
 int main(int argc, const char *argv[])
 {
     uv_loop_t *loop = uv_default_loop();
 
+    parse_command_line(argc, argv);
+
     uv_tcp_init(loop, &http_server);
     parser_settings.on_headers_complete = on_headers_complete;
 
-    int r = uv_tcp_bind(&http_server, uv_ip4_addr("0.0.0.0", 8000));
+    int r = uv_tcp_bind(&http_server, uv_ip4_addr("0.0.0.0", chimp_settings.port));
     if (r) {
         fprintf(stderr, "bind: %s\n", uv_strerror(r));
         return -1;
