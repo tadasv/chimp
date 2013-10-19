@@ -5,4 +5,5 @@ bin_PROGRAMS = chimp
 
 chimp_SOURCES = http_parser.c \
                 http_parser.h \
-                main.c
+                main.c \
+                log.c
