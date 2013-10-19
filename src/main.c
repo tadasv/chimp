@@ -59,7 +59,7 @@ void on_read(uv_stream_t *stream, ssize_t nread, uv_buf_t buf)
         fprintf(stdout, "%s", buf.base);
     } else {
         if (nread != UV_EOF) {
-            fprintf(stderr, "read: %s\n", uv_strerror(nread));
+            fprintf(stderr, "read: %s\n", uv_strerror(uv_last_error(stream->loop)));
         }
         uv_close((uv_handle_t*)stream, on_close);
     }
@@ -88,13 +88,13 @@ void on_connected(uv_stream_t* server, int status)
     http_client_t *client = (http_client_t*)malloc(sizeof(http_client_t));
     int r = uv_tcp_init(server->loop, &client->handle);
     if (r) {
-        fprintf(stderr, "uv_tcp_init: %s\n", uv_strerror(r));
+        fprintf(stderr, "uv_tcp_init: %s\n", uv_strerror(uv_last_error(server->loop)));
         return;
     }
 
     r = uv_accept(server, (uv_stream_t*)&client->handle);
     if (r) {
-        fprintf(stderr, "accept: %s\n", uv_strerror(r));
+        fprintf(stderr, "accept: %s\n", uv_strerror(uv_last_error(server->loop)));
         return;
     }
 
@@ -108,7 +108,7 @@ void on_connected(uv_stream_t* server, int status)
     uv_work_t *work_req = malloc(sizeof(uv_work_t));
     r = uv_queue_work(server->loop, work_req, work_cb, after_work_cb);
     if (r) {
-        fprintf(stderr, "uv_queue_work: %s\n", uv_strerror(r));
+        fprintf(stderr, "uv_queue_work: %s\n", uv_strerror(uv_last_error(server->loop)));
     }
 
     uv_read_start((uv_stream_t*)&client->handle, on_alloc, on_read);
@@ -173,13 +173,13 @@ int main(int argc, const char *argv[])
 
     int r = uv_tcp_bind(&http_server, uv_ip4_addr("0.0.0.0", chimp_settings.port));
     if (r) {
-        fprintf(stderr, "bind: %s\n", uv_strerror(r));
+        fprintf(stderr, "bind: %s\n", uv_strerror(uv_last_error(loop)));
         return -1;
     }
 
     r = uv_listen((uv_stream_t*)&http_server, 128, on_connected);
     if (r) {
-        fprintf(stderr, "listen: %s\n", uv_strerror(r));
+        fprintf(stderr, "listen: %s\n", uv_strerror(uv_last_error(loop)));
         return -1;
     }
 
