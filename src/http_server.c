@@ -1,3 +1,6 @@
+/**
+ * Copyright (C) Tadas Vilkeliskis
+ */
 #include <stdlib.h>
 #include "log.h"
 #include "http_server.h"

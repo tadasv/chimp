@@ -1,3 +1,6 @@
+/**
+ * Copyright (C) Tadas Vilkeliskis
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
