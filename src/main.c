@@ -75,7 +75,9 @@ int main(int argc, const char *argv[])
     http_server_settings.socket_backlog = 128;
 
     ch_http_server_init(&http_server, &http_server_settings, loop);
-    ch_http_server_start(&http_server);
+    if (ch_http_server_start(&http_server)) {
+        return -1;
+    }
 
     uv_run(loop, UV_RUN_DEFAULT);
 
