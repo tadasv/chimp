@@ -27,7 +27,8 @@ void ch_log_write(unsigned int level, const char *fmt, ...)
     written = vsnprintf(p, sizeof(log_buffer) - written, fmt, vargs);
     va_end(vargs);
     p += written;
-    *p = '\n';
+    *p++ = '\n';
+    *p = '\0';
 
     fprintf(stdout, "%s", log_buffer);
 }
