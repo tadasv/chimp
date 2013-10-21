@@ -6,7 +6,7 @@
 
 
 #include <uv.h>
-#include "http_parser.h"
+#include <http_parser.h>
 
 
 typedef struct ch_http_server_settings_ {

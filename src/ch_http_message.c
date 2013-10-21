@@ -3,7 +3,7 @@
  */
 #include <stdlib.h>
 #include <string.h>
-#include "ch_http_message.h"
+#include <ch_http_message.h>
 
 
 void ch_http_message_init(ch_http_message_t *msg)
