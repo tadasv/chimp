@@ -6,7 +6,7 @@
 #include <assert.h>
 #include <uv.h>
 #include "ch_log.h"
-#include "http_server.h"
+#include "ch_http_server.h"
 
 
 typedef struct {

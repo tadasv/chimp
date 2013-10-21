@@ -5,11 +5,11 @@ bin_PROGRAMS = chimp
 
 chimp_SOURCES = http_parser.c \
                 http_parser.h \
-                http_server.c \
-                http_server.h \
-                main.c \
+                ch_http_server.c \
+                ch_http_server.h \
                 ch_log.c \
                 ch_log.h \
                 ch_string.h \
                 ch_http_message.c \
-                ch_http_message.h
+                ch_http_message.h \
+                main.c
