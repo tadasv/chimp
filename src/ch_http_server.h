@@ -7,6 +7,7 @@
 
 #include <uv.h>
 #include <http_parser.h>
+#include <ch_hash_table.h>
 
 
 typedef struct ch_http_server_settings_ {
@@ -20,10 +21,12 @@ typedef struct ch_http_server_ {
     uv_tcp_t handle;
     http_parser_settings parser_settings;
     ch_http_server_settings_t *settings;
+    ch_hash_table_t handlers;
 } ch_http_server_t;
 
 
 int ch_http_server_init(ch_http_server_t *server, ch_http_server_settings_t *settings, uv_loop_t *loop);
+int ch_http_server_add_handler(ch_http_server_t *server, const char *path, void *handler);
 int ch_http_server_start(ch_http_server_t *server);
 
 

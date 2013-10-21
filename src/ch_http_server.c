@@ -1,29 +1,33 @@
 /**
  * Copyright (C) Tadas Vilkeliskis
  */
+#include <assert.h>
 #include <stdlib.h>
 #include <ch_log.h>
 #include <ch_http_server.h>
+#include <ch_http_client.h>
 #include <ch_http_message.h>
 
 
-typedef struct ch_http_client_ {
-    uv_tcp_t handle;
-    http_parser parser;
-    http_parser_settings *parser_settings;
-    ch_http_message_t request;
-} ch_http_client_t;
+typedef struct ch_write_req_ {
+    ch_http_client_t *client;
+    uv_buf_t buf;
+} ch_write_req_t;
 
 
-static void _close_cb(uv_handle_t *client_handle);
+void close_cb(uv_handle_t *client_handle);
 static void _connection_cb(uv_stream_t *server_handle, int status);
 static void _read_cb(uv_stream_t *client_handle, ssize_t nread, uv_buf_t buf);
+static void _write_cb(uv_write_t *req, int status);
 static uv_buf_t _alloc_cb(uv_handle_t* handle, size_t suggested_size);
 
 // http
 static int _message_begin(http_parser *parser);
 static int _url_cb(http_parser *parser, const char *at, size_t length);
+static int _header_field(http_parser *parser, const char *at, size_t len);
+static int _header_value(http_parser *parser, const char *at, size_t len);
 static int _headers_complete_cb(http_parser *parser);
+static int _body_cb(http_parser *parser, const char *at, size_t length);
 static int _message_complete(http_parser *parser);
 
 
@@ -47,7 +51,7 @@ static inline void _http_parser_field_data(const struct http_parser_url *p,
 static int _message_begin(http_parser *parser)
 {
     ch_http_client_t *client = parser->data;
-    client->request.state = CH_HTTP_MESSAGE_PROCESSING;
+    client->request.read_state = CH_HTTP_MESSAGE_PROCESSING;
     return 0;
 }
 
@@ -57,20 +61,21 @@ static int _url_cb(http_parser *parser, const char *at, size_t length)
     ch_http_client_t *client = parser->data;
     struct http_parser_url parser_url;
 
-    CH_LOG_DEBUG("url cb");
-    if (http_parser_parse_url(at, length, 0, &parser_url) != 0) {
-        client->request.state = CH_HTTP_MESSAGE_ERROR_INVALID;
+    ch_str_linit(&client->request.uri, at, length);
+
+    if (http_parser_parse_url(client->request.uri.data,
+                              client->request.uri.len,
+                              0, &parser_url) != 0) {
+        client->request.read_state = CH_HTTP_MESSAGE_ERROR_INVALID;
         return -1;
     }
 
     if (_http_parser_valid_field(&parser_url, UF_PATH)) {
         uint16_t offset, len;
         _http_parser_field_data(&parser_url, UF_PATH, &offset, &len);
-
-        client->request.path.len = len;
-        client->request.path.data = malloc(len);
-        strncpy(client->request.path.data, at + offset, len);
-        client->request.path.data[len] = '\0';
+        ch_str_linit(&client->request.path,
+                     client->request.uri.data + offset,
+                     len);
     }
 
     switch (parser->method) {
@@ -94,19 +99,99 @@ static int _url_cb(http_parser *parser, const char *at, size_t length)
 }
 
 
+static int _header_field(http_parser *parser, const char *at, size_t len)
+{
+    ch_http_client_t *client = parser->data;
+
+    if (client->header_value.len != 0) {
+        ch_keyval_t *header = (ch_keyval_t*)malloc(sizeof(ch_keyval_t));
+        ch_str_init(&header->key, client->header_field.data);
+        ch_str_init(&header->value, client->header_value.data);
+        ch_list_append(&client->request.headers, header);
+
+        client->header_value.len = 0;
+        client->header_field.len = 0;
+    }
+
+    ch_str_lcat(&client->header_field, at, len);
+    return 0;
+}
+
+
+static int _header_value(http_parser *parser, const char *at, size_t len)
+{
+    ch_http_client_t *client = parser->data;
+    ch_str_lcat(&client->header_value, at, len);
+    return 0;
+}
+
+
 static int _headers_complete_cb(http_parser *parser)
 {
     ch_http_client_t *client = parser->data;
-    CH_LOG_DEBUG("path: %s", client->request.path.data);
-    uv_close((uv_handle_t*)&client->handle, _close_cb);
-    return 1;
+
+    ch_node_t *node = client->request.headers.head;
+    while (node) {
+        ch_keyval_t *kv = node->data;
+        node = node->next;
+    }
+
+    return 0;
+}
+
+
+void http_not_found_handler(ch_http_client_t *client)
+{
+    ch_str_t str;
+    ch_str_init(&str, "HTTP/1.0 404 Not Found\r\nContent-Type: text/plain\r\nContent-Length: 3\r\n\r\n404");
+    // Write will take over memory ownership.
+    ch_http_client_finish(client, &str);
+}
+
+
+static int _body_cb(http_parser *parser, const char *at, size_t length)
+{
+    ch_http_client_t *client = parser->data;
+    // TODO body limits
+    ch_str_lcat(&client->request.body, at, length);
+    return 0;
 }
 
 
 static int _message_complete(http_parser *parser)
 {
     ch_http_client_t *client = parser->data;
-    client->request.state = CH_HTTP_MESSAGE_FINISHED;
+    client->request.read_state = CH_HTTP_MESSAGE_FINISHED;
+#if 0
+    uv_work_t *request_job = malloc(sizeof(uv_work_t));
+
+    // handle request in the background
+    request_job->data = client;
+    // user loop from the server since client can
+    // go away at any point in time.
+    uv_queue_work(client->server->handle.loop,
+                  request_job,
+                  _handle_request_cb,
+                  _after_handle_request_cb);
+#endif
+
+    ch_http_handler_t handler;
+    ch_hash_element_t *elem;
+
+    CH_LOG_DEBUG("method: %d, body: %s", client->request.method, client->request.body.data);
+
+    /* call request handler */
+    elem = ch_hash_table_find(&client->server->handlers,
+                              client->request.path.data,
+                              client->request.path.len);
+    if (!elem) {
+        http_not_found_handler(client);
+        return 0;
+    }
+
+    handler = (ch_http_handler_t)elem->data;
+    handler(client);
+
     return 0;
 }
 
@@ -120,14 +205,11 @@ uv_buf_t _alloc_cb(uv_handle_t* handle, size_t suggested_size)
 }
 
 
-static void _close_cb(uv_handle_t *client_handle)
+void close_cb(uv_handle_t *client_handle)
 {
     ch_http_client_t *client = client_handle->data;
-    // release request data
-    ch_http_message_free(&client->request);
-    // release client
+    ch_http_client_free(client);
     free(client);
-    CH_LOG_DEBUG("closed");
 }
 
 
@@ -142,16 +224,16 @@ static void _read_cb(uv_stream_t *client_handle, ssize_t nread, uv_buf_t buf)
                                      buf.base,
                                      nread);
 
-        if (client->request.state != CH_HTTP_MESSAGE_FINISHED) {
+        if (client->request.read_state != CH_HTTP_MESSAGE_FINISHED) {
             if (parsed != nread) {
-                client->request.state = CH_HTTP_MESSAGE_ERROR_INVALID;
+                client->request.read_state = CH_HTTP_MESSAGE_ERROR_INVALID;
             }
         }
     } else {
         if (nread != UV_EOF) {
             CH_LOG_ERROR("read: %s", uv_strerror(uv_last_error(client_handle->loop)));
         }
-        uv_close((uv_handle_t*)client_handle, _close_cb);
+        uv_close((uv_handle_t*)client_handle, close_cb);
     }
 
     free(buf.base);
@@ -164,33 +246,20 @@ static void _connection_cb(uv_stream_t *server_handle, int status)
     ch_http_server_t *server = server_handle->data;
     ch_http_client_t *client = (ch_http_client_t*)malloc(sizeof(ch_http_client_t));
 
-    ch_http_message_init(&client->request);
-
-    r = uv_tcp_init(server_handle->loop, &client->handle);
-    if (r) {
-        CH_LOG_ERROR("uv_tcp_init: %s", uv_strerror((uv_last_error(server->loop))));
+    if (ch_http_client_init(client, server)) {
+        free(client);
         return;
     }
 
-    r = uv_accept(server_handle, (uv_stream_t*)&client->handle);
-    if (r) {
-        CH_LOG_ERROR("uv_accept: %s", uv_strerror((uv_last_error(server->loop))));
-        return;
-    }
-
-    client->handle.data = client;
-    client->parser.data = client;
-    client->parser_settings = &server->parser_settings;
-
-    http_parser_init(&client->parser, HTTP_REQUEST);
-
-    CH_LOG_DEBUG("connected");
     uv_read_start((uv_stream_t*)&client->handle, _alloc_cb, _read_cb);
 }
 
 
 int ch_http_server_init(ch_http_server_t *server, ch_http_server_settings_t *settings, uv_loop_t *loop)
 {
+    assert(server);
+    assert(loop);
+
     server->loop = loop;
     server->settings = settings;
 
@@ -198,14 +267,34 @@ int ch_http_server_init(ch_http_server_t *server, ch_http_server_settings_t *set
     server->parser_settings.on_message_begin = _message_begin;
     server->parser_settings.on_url = _url_cb;
     server->parser_settings.on_status_complete = NULL;
-    server->parser_settings.on_header_field = NULL;
-    server->parser_settings.on_header_value = NULL;
+    server->parser_settings.on_header_field = _header_field;
+    server->parser_settings.on_header_value = _header_value;
     server->parser_settings.on_headers_complete = _headers_complete_cb;
-    server->parser_settings.on_body = NULL;
+    server->parser_settings.on_body = _body_cb;
     server->parser_settings.on_message_complete = _message_complete;
 
     uv_tcp_init(server->loop, &server->handle);
     server->handle.data = server;
+
+    // TODO switch to hash table that can handle collisions
+    ch_hash_table_init(&server->handlers, 64);
+
+    return 0;
+}
+
+
+int ch_http_server_add_handler(ch_http_server_t *server, const char *path, void *handler)
+{
+    assert(server);
+
+    int len = strlen(path);
+
+    if (ch_hash_table_find(&server->handlers, (void*)path, len)) {
+        return -1;
+    }
+
+    ch_hash_table_add(&server->handlers, (void*)path, len, handler);
+    return 0;
 }
 
 

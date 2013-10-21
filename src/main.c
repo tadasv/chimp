@@ -1,6 +1,7 @@
 /**
  * Copyright (C) Tadas Vilkeliskis
  */
+#include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -36,7 +37,7 @@ static void usage(const char *program_name)
 }
 
 
-static void parse_command_line(int argc, const char *argv[])
+static void parse_command_line(int argc, char * const argv[])
 {
     int cmd_option;
     extern char *optarg;
@@ -63,7 +64,7 @@ static void parse_command_line(int argc, const char *argv[])
 }
 
 
-int main(int argc, const char *argv[])
+int main(int argc, char * const argv[])
 {
     uv_loop_t *loop = uv_default_loop();
     ch_http_server_t http_server;

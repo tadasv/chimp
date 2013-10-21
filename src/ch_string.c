@@ -4,7 +4,7 @@
 #include <ch_string.h>
 
 
-inline void ch_str_init_empty(ch_str_t *str)
+void ch_str_init_empty(ch_str_t *str)
 {
     assert(str);
     memset(str, 0, sizeof(ch_str_t));

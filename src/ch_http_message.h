@@ -6,6 +6,7 @@
 
 
 #include <ch_string.h>
+#include <ch_list.h>
 
 
 typedef enum ch_http_message_state_ {
@@ -26,9 +27,12 @@ typedef enum ch_http_request_method_ {
 
 
 typedef struct ch_http_message_ {
-    ch_http_message_state_t state;
+    ch_http_message_state_t read_state;
     ch_http_request_method_t method;
+    ch_str_t uri;
     ch_str_t path;
+    ch_str_t body;
+    ch_list_t headers;
 } ch_http_message_t;
 
 
