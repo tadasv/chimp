@@ -12,4 +12,6 @@ chimp_SOURCES = http_parser.c \
                 ch_string.h \
                 ch_http_message.c \
                 ch_http_message.h \
+                ch_list.c \
+                ch_list.h \
                 main.c
