@@ -3,7 +3,7 @@
  */
 #include <stdarg.h>
 #include <stdio.h>
-#include "log.h"
+#include "ch_log.h"
 
 
 static const char *error_levels[] = {

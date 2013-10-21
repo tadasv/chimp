@@ -2,7 +2,7 @@
  * Copyright (C) Tadas Vilkeliskis
  */
 #include <stdlib.h>
-#include "log.h"
+#include "ch_log.h"
 #include "http_server.h"
 #include "ch_http_message.h"
 
