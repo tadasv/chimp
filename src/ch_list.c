@@ -50,6 +50,10 @@ void ch_list_append(ch_list_t *list, void *data)
     node->prev = list->tail;
     node->next = NULL;
     node->data = data;
-    list->tail->next = node;
+    if (list->tail) {
+        list->tail->next = node;
+    } else {
+        list->head = node;
+    }
     list->tail = node;
 }
