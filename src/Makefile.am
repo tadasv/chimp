@@ -8,4 +8,7 @@ chimp_SOURCES = http_parser.c \
                 http_server.c \
                 http_server.h \
                 main.c \
-                log.c
+                log.c \
+                ch_string.h \
+                ch_http_message.c \
+                ch_http_message.h

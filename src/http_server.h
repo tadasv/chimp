@@ -18,7 +18,7 @@ typedef struct ch_http_server_settings_ {
 typedef struct ch_http_server_ {
     uv_loop_t *loop;
     uv_tcp_t handle;
-    http_parser_settings http_parser_settings;
+    http_parser_settings parser_settings;
     ch_http_server_settings_t *settings;
 } ch_http_server_t;
 
