@@ -15,8 +15,12 @@ typedef struct ch_keyval_ {
 } ch_keyval_t;
 
 
+inline void ch_str_init_empty(ch_str_t *str);
 void ch_str_init(ch_str_t *str, const char *s);
+void ch_str_linit(ch_str_t *str, const char *s, size_t len);
 void ch_str_init_alloc(ch_str_t *str, size_t size);
+void ch_str_cat(ch_str_t *str, const char *s);
+void ch_str_lcat(ch_str_t *str, const char *s, size_t len);
 void ch_str_free(ch_str_t *str);
 
 

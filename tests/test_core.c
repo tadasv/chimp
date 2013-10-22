@@ -84,7 +84,27 @@ START_TEST(test_ch_str_cat)
     ch_str_cat(&str, "testas");
     ck_assert(strcmp(str.data, "123456789testas") == 0);
     ck_assert(str.len == 15);
-    ck_assert(str.size == 20);
+    ck_assert(str.size == 32);
+    ch_str_free(&str);
+}
+END_TEST
+
+
+START_TEST(test_ch_str_lcat)
+{
+    ch_str_t str;
+
+    ch_str_init_alloc(&str, 10);
+    ch_str_lcat(&str, "123456", 6);
+    ck_assert(strcmp(str.data, "123456") == 0);
+    ch_str_lcat(&str, "789", 3);
+    ck_assert(str.len == 9);
+    ck_assert(str.size == 10);
+    ck_assert(strcmp(str.data, "123456789") == 0);
+    ch_str_lcat(&str, "testas", 6);
+    ck_assert(strcmp(str.data, "123456789testas") == 0);
+    ck_assert(str.len == 15);
+    ck_assert(str.size == 32);
     ch_str_free(&str);
 }
 END_TEST
@@ -101,6 +121,7 @@ int main(int argc, const char *argv[])
     TCase *ch_str_test_case = tcase_create("ch_str");
     tcase_add_test(ch_str_test_case, test_ch_str_init);
     tcase_add_test(ch_str_test_case, test_ch_str_cat);
+    tcase_add_test(ch_str_test_case, test_ch_str_lcat);
 
     /* Add test cases here */
     suite_add_tcase(s, ch_list_test_case);
