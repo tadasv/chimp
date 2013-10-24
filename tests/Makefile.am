@@ -9,4 +9,8 @@ test_core_SOURCES = ../src/ch_list.c \
                     ../src/ch_list.h \
                     ../src/ch_string.c \
                     ../src/ch_string.h \
+                    ../src/ch_hash_table.c \
+                    ../src/ch_hash_table.h \
+                    ../src/murmur.c \
+                    ../src/murmur.h \
                     test_core.c

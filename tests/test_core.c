@@ -2,6 +2,38 @@
 
 #include <ch_list.h>
 #include <ch_string.h>
+#include <ch_hash_table.h>
+
+
+START_TEST(test_ch_hash_table_init)
+{
+    ch_hash_table_t ht;
+
+    ch_hash_table_init(&ht, 12);
+    ch_hash_table_free(&ht);
+}
+END_TEST
+
+
+START_TEST(test_ch_hash_table_add)
+{
+    ch_hash_table_t ht;
+    ch_hash_element_t *elem;
+    int data = 1;
+    int data2 = 2;
+
+    ch_hash_table_init(&ht, 12);
+    ck_assert(ch_hash_table_find(&ht, "123", 3) == NULL);
+    ch_hash_table_add(&ht, "123", 3, &data);
+    elem = ch_hash_table_find(&ht, "123", 3);
+    ck_assert(elem != NULL);
+    ck_assert(elem->data == &data);
+    ch_hash_table_add(&ht, "123", 3, &data2);
+    elem = ch_hash_table_find(&ht, "123", 3);
+    ck_assert(elem->data == &data2);
+    ch_hash_table_free(&ht);
+}
+END_TEST
 
 
 START_TEST(test_ch_list_init)
@@ -123,9 +155,13 @@ int main(int argc, const char *argv[])
     tcase_add_test(ch_str_test_case, test_ch_str_cat);
     tcase_add_test(ch_str_test_case, test_ch_str_lcat);
 
+    TCase *ch_hash_table_test_case = tcase_create("ch_hash_table");
+    tcase_add_test(ch_hash_table_test_case, test_ch_hash_table_init);
+
     /* Add test cases here */
     suite_add_tcase(s, ch_list_test_case);
     suite_add_tcase(s, ch_str_test_case);
+    suite_add_tcase(s, ch_hash_table_test_case);
 
     SRunner *sr = srunner_create(s);
     srunner_run_all(sr, CK_VERBOSE);
