@@ -3,6 +3,8 @@
 #include <ch_list.h>
 #include <ch_string.h>
 #include <ch_hash_table.h>
+#include <ch_row.h>
+#include <ch_table.h>
 
 
 START_TEST(test_ch_hash_table_init)
@@ -142,8 +144,108 @@ START_TEST(test_ch_str_lcat)
 END_TEST
 
 
+START_TEST(test_ch_row_init)
+{
+    ch_row_t row;
+    ch_row_init(&row, 10);
+    ch_row_free(&row);
+}
+END_TEST
+
+
+START_TEST(test_ch_row_get_set)
+{
+    int i;
+    double value;
+    ch_row_t row;
+    ch_row_init(&row, 5);
+
+    for (i = 0; i < 3; i++) {
+        ck_assert_int_eq(0, ch_row_set(&row, i, (double)i));
+    }
+
+    for (i = 0; i < row.ncols; i++) {
+        ck_assert_int_eq(0, ch_row_get(&row, i, &value));
+        if (i >= 3) {
+            ck_assert(value == 0.0);
+        } else {
+            ck_assert(value == i);
+        }
+    }
+
+    ck_assert_int_eq(-1, ch_row_get(&row, -1, &value));
+    ck_assert_int_eq(-1, ch_row_get(&row, 10, &value));
+    ck_assert_int_eq(-1, ch_row_set(&row, -1, value));
+    ck_assert_int_eq(-1, ch_row_set(&row, 10, value));
+    ck_assert_int_eq(-1, ch_row_set(&row, 5, value));
+    /* test for one-off error */
+    ck_assert_int_eq(-1, ch_row_set(&row, 5, value));
+    ck_assert_int_eq(-1, ch_row_get(&row, 10, &value));
+
+    ch_row_free(&row);
+}
+END_TEST
+
+
+START_TEST(test_ch_table_init)
+{
+    ch_table_t table;
+    ch_table_init(&table, 10, 10);
+    ck_assert_int_eq(0, table.nrows);
+    ch_table_free(&table);
+}
+END_TEST
+
+
+START_TEST(test_ch_table_get_set)
+{
+    ch_table_t table;
+    double value = 0;
+    off_t i;
+
+    ch_table_init(&table, 2, 2);
+    ck_assert_int_eq(0, table.nrows);
+
+    ck_assert_int_eq(-1, ch_table_get(&table, 0, 0, &value));
+    ck_assert_int_eq(-1, ch_table_get(&table, 1, 1, &value));
+    ck_assert_int_eq(-1, ch_table_get(&table, 10, 10, &value));
+
+    ck_assert_int_eq(0, ch_table_set(&table, 0, 0, 10));
+    ck_assert_int_eq(-1, ch_table_set(&table, 0, 2, 20));
+    ck_assert_int_eq(1, table.nrows);
+
+    ck_assert_int_eq(0, ch_table_get(&table, 0, 0, &value));
+    ck_assert(value == 10);
+    /* if row does not exist when we set a value it will be created
+     * automatically and filled with zeros */
+    ck_assert_int_eq(0, ch_table_get(&table, 0, 1, &value));
+    ck_assert(value == 0);
+    ck_assert_int_eq(-1, ch_table_get(&table, 0, 2, &value));
+
+    /* try expanding index size */
+    for (i = 0; i < 10; i++) {
+        ck_assert_int_eq(0, ch_table_set(&table, i, 0, 1));
+        ck_assert_int_eq(0, ch_table_set(&table, i, 1, 2));
+        /* can't expand columns */
+        ck_assert_int_eq(-1, ch_table_set(&table, i, 2, 3));
+    }
+    ck_assert_int_eq(10, table.nrows);
+
+    for (i = 0; i < 10; i++) {
+        ck_assert_int_eq(0, ch_table_get(&table, i, 0, &value));
+        ck_assert(value == 1);
+        ck_assert_int_eq(0, ch_table_get(&table, i, 1, &value));
+        ck_assert(value == 2);
+    }
+
+    ch_table_free(&table);
+}
+END_TEST
+
+
 int main(int argc, const char *argv[])
 {
+    int number_failed;
     Suite *s = suite_create("core");
 
     TCase *ch_list_test_case = tcase_create("ch_list");
@@ -158,13 +260,24 @@ int main(int argc, const char *argv[])
     TCase *ch_hash_table_test_case = tcase_create("ch_hash_table");
     tcase_add_test(ch_hash_table_test_case, test_ch_hash_table_init);
 
+    TCase *ch_row_test_case = tcase_create("ch_row");
+    tcase_add_test(ch_row_test_case, test_ch_row_init);
+    tcase_add_test(ch_row_test_case, test_ch_row_get_set);
+
+    TCase *ch_table_test_case = tcase_create("ch_table");
+    tcase_add_test(ch_table_test_case, test_ch_table_init);
+    tcase_add_test(ch_table_test_case, test_ch_table_get_set);
+
     /* Add test cases here */
     suite_add_tcase(s, ch_list_test_case);
     suite_add_tcase(s, ch_str_test_case);
     suite_add_tcase(s, ch_hash_table_test_case);
+    suite_add_tcase(s, ch_row_test_case);
+    suite_add_tcase(s, ch_table_test_case);
 
     SRunner *sr = srunner_create(s);
     srunner_run_all(sr, CK_VERBOSE);
+    number_failed = srunner_ntests_failed(sr);
     srunner_free(sr);
-    return 0;
+    return (number_failed == 0) ? 0 : -1;
 }

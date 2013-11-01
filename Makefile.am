@@ -8,3 +8,6 @@ EXTRA_DIST = \
 	autogen.sh	\
 	README.md	\
 	LICENSE
+
+test: all
+	cd tests ; $(MAKE) check
