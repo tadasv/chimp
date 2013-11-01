@@ -15,10 +15,11 @@ void ch_hash_table_init(ch_hash_table_t *ht, size_t size)
 {
     assert(ht);
 
+    size_t i;
     ht->size = size;
     ht->buckets = malloc(sizeof(ch_hash_element_t*) * size);
 
-    for (size_t i = 0; i < size; i++) {
+    for (i = 0; i < size; i++) {
         ht->buckets[i] = NULL;
     }
 }
@@ -65,8 +66,9 @@ ch_hash_element_t* ch_hash_table_find(ch_hash_table_t *ht, void *key, size_t key
 void ch_hash_table_free(ch_hash_table_t *ht)
 {
     assert(ht);
+    size_t i;
 
-    for (size_t i = 0; i < ht->size; i++) {
+    for (i = 0; i < ht->size; i++) {
         if (ht->buckets[i]) {
             free(ht->buckets[i]);
         }
