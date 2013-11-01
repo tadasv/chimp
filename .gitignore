@@ -9,3 +9,7 @@ config.status
 aclocal.m4
 .deps
 .dirstamp
+*.trs
+*.log
+tests/test_core
+src/chimp
