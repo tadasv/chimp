@@ -54,15 +54,21 @@ int ch_http_client_init(ch_http_client_t *client, ch_http_server_t *server)
         return r;
     }
 
+    http_parser_init(&client->parser, HTTP_REQUEST);
+    csv_parser_init(&client->csv_parser);
+
     client->server = server;
     client->handle.data = client;
     client->parser.data = client;
+    client->csv_parser.data = client;
     client->parser_settings = &server->parser_settings;
+    client->csv_parser_settings = &server->csv_parser_settings;
     /* initialize temporary buffers for parsing http headers */
     ch_str_init_alloc(&client->header_field, 128);
     ch_str_init_alloc(&client->header_value, 128);
-
-    http_parser_init(&client->parser, HTTP_REQUEST);
+    ch_str_init_alloc(&client->csv_field, 16);
+    client->current_csv_row = -1;
+    client->current_csv_col = -1;
 
     return 0;
 }
@@ -114,4 +120,5 @@ void ch_http_client_free(ch_http_client_t *client)
     ch_http_message_free(&client->request);
     ch_str_free(&client->header_field);
     ch_str_free(&client->header_value);
+    ch_str_free(&client->csv_field);
 }

@@ -25,6 +25,7 @@
 
 #include <uv.h>
 #include <http_parser.h>
+#include <csv_parser.h>
 #include <ch_http_message.h>
 #include <ch_http_server.h>
 
@@ -33,11 +34,17 @@ typedef struct ch_http_client_ {
     uv_tcp_t handle;
     http_parser parser;
     http_parser_settings *parser_settings;
+    csv_parser_t csv_parser;
+    csv_parser_settings_t *csv_parser_settings;
     ch_http_server_t *server;
     ch_http_message_t request;
     /* temp buffers for parsing http headers */
     ch_str_t header_field;
     ch_str_t header_value;
+    /* temp variables for building csv field */
+    ch_str_t csv_field;
+    int current_csv_row;
+    int current_csv_col;
 } ch_http_client_t;
 
 

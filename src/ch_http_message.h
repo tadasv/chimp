@@ -26,6 +26,7 @@
 
 #include <ch_string.h>
 #include <ch_list.h>
+#include <ch_table.h>
 
 
 typedef enum ch_http_message_state_ {
@@ -52,6 +53,7 @@ typedef struct ch_http_message_ {
     ch_str_t path;
     ch_str_t body;
     ch_list_t headers;
+    ch_table_t *csv_table;
 } ch_http_message_t;
 
 

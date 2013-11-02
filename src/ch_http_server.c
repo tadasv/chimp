@@ -21,6 +21,7 @@
  * SOFTWARE.
  */
 #include <assert.h>
+#include <errno.h>
 #include <stdlib.h>
 #include <ch_log.h>
 #include <ch_http_server.h>
@@ -64,6 +65,53 @@ static inline void _http_parser_field_data(const struct http_parser_url *p,
 {
     *off = p->field_data[field].off;
     *len = p->field_data[field].len;
+}
+
+
+static int _csv_field_cb(csv_parser_t *parser, const char *data, size_t length, int row, int col)
+{
+    ch_http_client_t *client = parser->data;
+
+    int current_row = client->current_csv_row;
+    int current_col = client->current_csv_col;
+
+    if (current_row != row || current_col != col) {
+        if (current_row == -1 && current_col == -1) {
+            /* first time */
+            client->current_csv_row = row;
+            client->current_csv_col = col;
+        } else {
+            double value;
+
+            if (ch_str_to_double(client->csv_field.data, &value) != 0) {
+                CH_LOG_ERROR("ch_str_to_double: \"%s\", row: %d, col: %d",
+                             client->csv_field.data,
+                             current_row,
+                             current_col);
+                return -1;
+            }
+
+            assert(client->request.csv_table);
+            if (ch_table_set(client->request.csv_table,
+                             current_row,
+                             current_col,
+                             value) != 0) {
+                CH_LOG_ERROR("ch_table_set: failed to set %d at row:%d, col:%d",
+                             value, current_row, current_col);
+                return -1;
+            }
+
+            client->current_csv_row = row;
+            client->current_csv_col = col;
+            client->csv_field.len = 0;
+        }
+    }
+
+    /* we are still in the same field, concat to current data with
+     * intermediate result */
+    ch_str_lcat(&client->csv_field, data, length);
+
+    return 0;
 }
 
 
@@ -149,10 +197,44 @@ static int _headers_complete_cb(http_parser *parser)
 {
     ch_http_client_t *client = parser->data;
 
-    ch_node_t *node = client->request.headers.head;
-    while (node) {
-        ch_keyval_t *kv = node->data;
-        node = node->next;
+    if (client->request.method == CH_HTTP_REQUEST_METHOD_POST ||
+        client->request.method == CH_HTTP_REQUEST_METHOD_PUT) {
+        /* setup csv table since POST/PUT request should always
+         * contain csv data */
+
+        /* find the number of columns in the dataset from headers.
+         * We don't care about the rows since we can grow vertically
+         * but not horizontally. */
+        ch_node_t *node = client->request.headers.head;
+        while (node) {
+            ch_keyval_t *kv = node->data;
+            if (strncmp("Data-Columns", kv->key.data, 12) == 0) {
+                long ncols;
+
+                if (ch_str_to_long(kv->value.data, &ncols) != 0) {
+                    CH_LOG_ERROR("failed to parse int: %s", kv->value.data);
+                    http_bad_request_handler(client);
+                    return -1;
+                } else if (ncols < 1) {
+                    CH_LOG_ERROR("not enough columns");
+                    http_bad_request_handler(client);
+                    return -1;
+                } else {
+                    /* lazy allocation of csv table. Memory will be released
+                     * upon the destruction of the request object */
+                    client->request.csv_table = malloc(sizeof(ch_table_t));
+                    /* TODO pick better initial index size */
+                    ch_table_init(client->request.csv_table, ncols, 10);
+                    return 0;
+                }
+
+                break;
+            }
+            node = node->next;
+        }
+
+        http_bad_request_handler(client);
+        return -1;
     }
 
     return 0;
@@ -162,7 +244,18 @@ static int _headers_complete_cb(http_parser *parser)
 void http_not_found_handler(ch_http_client_t *client)
 {
     ch_str_t str;
+    CH_LOG_DEBUG("not_found_handler");
     ch_str_init(&str, "HTTP/1.0 404 Not Found\r\nContent-Type: text/plain\r\nContent-Length: 3\r\n\r\n404");
+    // Write will take over memory ownership.
+    ch_http_client_finish(client, &str);
+}
+
+
+void http_bad_request_handler(ch_http_client_t *client)
+{
+    ch_str_t str;
+    CH_LOG_DEBUG("bad_request_handler");
+    ch_str_init(&str, "HTTP/1.0 400 Bad Request\r\n");
     // Write will take over memory ownership.
     ch_http_client_finish(client, &str);
 }
@@ -171,8 +264,21 @@ void http_not_found_handler(ch_http_client_t *client)
 static int _body_cb(http_parser *parser, const char *at, size_t length)
 {
     ch_http_client_t *client = parser->data;
-    // TODO body limits
-    ch_str_lcat(&client->request.body, at, length);
+
+    /* if csv_table is not null it means that the data headers
+     * were correct and we are expecting CSV data.
+     */
+    if (client->request.csv_table) {
+        size_t nread = csv_parser_execute(&client->csv_parser,
+                                          client->csv_parser_settings,
+                                          at,
+                                          length);
+        /* bail out early if we have problems while parsing the body */
+        if (client->csv_parser.state == csvps_error) {
+            http_bad_request_handler(client);
+            return -1;
+        }
+    }
     return 0;
 }
 
@@ -197,7 +303,9 @@ static int _message_complete(http_parser *parser)
     ch_http_handler_t handler;
     ch_hash_element_t *elem;
 
-    CH_LOG_DEBUG("method: %d, body: %s", client->request.method, client->request.body.data);
+    /* TODO take a final look at the csv_field since csv
+     * parser does not know when the data stream ends.
+     */
 
     /* call request handler */
     elem = ch_hash_table_find(&client->server->handlers,
@@ -291,6 +399,10 @@ int ch_http_server_init(ch_http_server_t *server, ch_http_server_settings_t *set
     server->parser_settings.on_headers_complete = _headers_complete_cb;
     server->parser_settings.on_body = _body_cb;
     server->parser_settings.on_message_complete = _message_complete;
+
+    memset(&server->csv_parser_settings, 0, sizeof(server->csv_parser_settings));
+    server->csv_parser_settings.delimiter = ',';
+    server->csv_parser_settings.field_cb = _csv_field_cb;
 
     uv_tcp_init(server->loop, &server->handle);
     server->handle.data = server;

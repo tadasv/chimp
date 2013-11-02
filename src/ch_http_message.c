@@ -52,4 +52,10 @@ void ch_http_message_free(ch_http_message_t *msg)
     ch_str_free(&msg->body);
     ch_str_free(&msg->path);
     ch_str_free(&msg->uri);
+
+    if (msg->csv_table) {
+        ch_table_free(msg->csv_table);
+        free(msg->csv_table);
+        msg->csv_table = NULL;
+    }
 }

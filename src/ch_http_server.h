@@ -26,6 +26,7 @@
 
 #include <uv.h>
 #include <http_parser.h>
+#include <csv_parser.h>
 #include <ch_hash_table.h>
 
 
@@ -39,6 +40,7 @@ typedef struct ch_http_server_ {
     uv_loop_t *loop;
     uv_tcp_t handle;
     http_parser_settings parser_settings;
+    csv_parser_settings_t csv_parser_settings;
     ch_http_server_settings_t *settings;
     ch_hash_table_t handlers;
 } ch_http_server_t;
