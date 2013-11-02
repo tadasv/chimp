@@ -144,6 +144,40 @@ START_TEST(test_ch_str_lcat)
 END_TEST
 
 
+START_TEST(test_ch_str_to_long)
+{
+    long result;
+
+    ck_assert_int_ne(0, ch_str_to_long(NULL, &result));
+    ck_assert_int_ne(0, ch_str_to_long("", &result));
+    ck_assert_int_ne(0, ch_str_to_long("asf", &result));
+    ck_assert_int_eq(0, ch_str_to_long(" -1", &result));
+    ck_assert_int_eq(-1, result);
+    ck_assert_int_ne(0, ch_str_to_long("10 ", &result));
+    ck_assert_int_eq(0, ch_str_to_long("10", &result));
+    ck_assert_int_eq(10, result);
+}
+END_TEST
+
+
+START_TEST(test_ch_str_to_double)
+{
+    double result;
+
+    ck_assert_int_ne(0, ch_str_to_double(NULL, &result));
+    ck_assert_int_ne(0, ch_str_to_double("", &result));
+    ck_assert_int_ne(0, ch_str_to_double("asf", &result));
+    ck_assert_int_eq(0, ch_str_to_double(" -1", &result));
+    ck_assert(-1 == result);
+    ck_assert_int_ne(0, ch_str_to_double("10 ", &result));
+    ck_assert_int_eq(0, ch_str_to_double("10", &result));
+    ck_assert(10 == result);
+    ck_assert_int_eq(0, ch_str_to_double("1.5", &result));
+    ck_assert(1.5 == result);
+}
+END_TEST
+
+
 START_TEST(test_ch_row_init)
 {
     ch_row_t row;
@@ -256,6 +290,8 @@ int main(int argc, const char *argv[])
     tcase_add_test(ch_str_test_case, test_ch_str_init);
     tcase_add_test(ch_str_test_case, test_ch_str_cat);
     tcase_add_test(ch_str_test_case, test_ch_str_lcat);
+    tcase_add_test(ch_str_test_case, test_ch_str_to_long);
+    tcase_add_test(ch_str_test_case, test_ch_str_to_double);
 
     TCase *ch_hash_table_test_case = tcase_create("ch_hash_table");
     tcase_add_test(ch_hash_table_test_case, test_ch_hash_table_init);

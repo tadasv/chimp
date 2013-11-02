@@ -45,5 +45,8 @@ void ch_str_cat(ch_str_t *str, const char *s);
 void ch_str_lcat(ch_str_t *str, const char *s, size_t len);
 void ch_str_free(ch_str_t *str);
 
+int ch_str_to_long(const char *s, long *out);
+int ch_str_to_double(const char *s, double *out);
+
 
 #endif /* end of include guard */

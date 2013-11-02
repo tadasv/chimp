@@ -104,3 +104,37 @@ void ch_str_cat(ch_str_t *str, const char *s)
 {
     ch_str_lcat(str, s, strlen(s));
 }
+
+
+int ch_str_to_long(const char *s, long *out)
+{
+    char *endptr = NULL;
+
+    if (!s || !*s) {
+        return -1;
+    }
+
+    *out = strtol(s, &endptr, 10);
+    if (*endptr != '\0') {
+        return -1;
+    }
+
+    return 0;
+}
+
+
+int ch_str_to_double(const char *s, double *out)
+{
+    char *endptr = NULL;
+
+    if (!s || !*s) {
+        return -1;
+    }
+
+    *out = strtod(s, &endptr);
+    if (*endptr != '\0') {
+        return -1;
+    }
+
+    return 0;
+}
