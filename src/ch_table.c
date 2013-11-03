@@ -46,8 +46,11 @@ void ch_table_free(ch_table_t *table)
     for (i = 0; i < table->index_size; i++) {
         if (table->index[i]) {
             ch_row_free(table->index[i]);
+            free(table->index[i]);
         }
     }
+
+    free(table->index);
 }
 
 
