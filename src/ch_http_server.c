@@ -24,6 +24,7 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <ch_log.h>
+#include <ch_http_handlers.h>
 #include <ch_http_server.h>
 #include <ch_http_client.h>
 #include <ch_http_message.h>
@@ -43,10 +44,6 @@ static int _header_value(http_parser *parser, const char *at, size_t len);
 static int _headers_complete_cb(http_parser *parser);
 static int _body_cb(http_parser *parser, const char *at, size_t length);
 static int _message_complete(http_parser *parser);
-
-
-void http_bad_request_handler(ch_http_client_t *client);
-void http_not_found_handler(ch_http_client_t *client);
 
 
 static inline int _http_parser_valid_field(const struct http_parser_url *p,
@@ -211,11 +208,11 @@ static int _headers_complete_cb(http_parser *parser)
 
                 if (ch_str_to_long(kv->value.data, &ncols) != 0) {
                     CH_LOG_ERROR("failed to parse int: %s", kv->value.data);
-                    http_bad_request_handler(client);
+                    ch_http_handler_bad_request(client);
                     return -1;
                 } else if (ncols < 1) {
                     CH_LOG_ERROR("not enough columns");
-                    http_bad_request_handler(client);
+                    ch_http_handler_bad_request(client);
                     return -1;
                 } else {
                     /* lazy allocation of csv table. Memory will be released
@@ -231,31 +228,11 @@ static int _headers_complete_cb(http_parser *parser)
             node = node->next;
         }
 
-        http_bad_request_handler(client);
+        ch_http_handler_bad_request(client);
         return -1;
     }
 
     return 0;
-}
-
-
-void http_not_found_handler(ch_http_client_t *client)
-{
-    ch_str_t str;
-    CH_LOG_DEBUG("not_found_handler");
-    ch_str_init(&str, "HTTP/1.0 404 Not Found\r\nContent-Type: text/plain\r\nContent-Length: 3\r\n\r\n404");
-    // Write will take over memory ownership.
-    ch_http_client_finish(client, &str);
-}
-
-
-void http_bad_request_handler(ch_http_client_t *client)
-{
-    ch_str_t str;
-    CH_LOG_DEBUG("bad_request_handler");
-    ch_str_init(&str, "HTTP/1.0 400 Bad Request\r\n");
-    // Write will take over memory ownership.
-    ch_http_client_finish(client, &str);
 }
 
 
@@ -273,7 +250,7 @@ static int _body_cb(http_parser *parser, const char *at, size_t length)
                                           length);
         /* bail out early if we have problems while parsing the body */
         if (client->csv_parser.state == csvps_error) {
-            http_bad_request_handler(client);
+            ch_http_handler_bad_request(client);
             return -1;
         }
     }
@@ -309,7 +286,7 @@ static int _message_complete(http_parser *parser)
                                  client->request.path.data,
                                  client->request.path.len);
     if (!handler) {
-        http_not_found_handler(client);
+        ch_http_handler_not_found(client);
         return 0;
     }
 
