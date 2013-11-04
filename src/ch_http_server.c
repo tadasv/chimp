@@ -45,6 +45,10 @@ static int _body_cb(http_parser *parser, const char *at, size_t length);
 static int _message_complete(http_parser *parser);
 
 
+void http_bad_request_handler(ch_http_client_t *client);
+void http_not_found_handler(ch_http_client_t *client);
+
+
 static inline int _http_parser_valid_field(const struct http_parser_url *p,
                                            enum http_parser_url_fields field)
 {
@@ -295,22 +299,20 @@ static int _message_complete(http_parser *parser)
 #endif
 
     ch_http_handler_t handler;
-    ch_hash_element_t *elem;
 
     /* TODO take a final look at the csv_field since csv
      * parser does not know when the data stream ends.
      */
 
     /* call request handler */
-    elem = ch_hash_table_find(&client->server->handlers,
-                              client->request.path.data,
-                              client->request.path.len);
-    if (!elem) {
+    handler = ch_hash_table_find(&client->server->handlers,
+                                 client->request.path.data,
+                                 client->request.path.len);
+    if (!handler) {
         http_not_found_handler(client);
         return 0;
     }
 
-    handler = (ch_http_handler_t)elem->data;
     handler(client);
 
     return 0;
