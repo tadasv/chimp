@@ -39,10 +39,32 @@ typedef struct ch_hash_table_ {
 } ch_hash_table_t;
 
 
+typedef struct ch_hash_element_multi_ {
+    void *data;
+    size_t length;
+    struct ch_hash_element_multi_ *next;
+    struct ch_hash_element_multi_ *prev;
+    unsigned char key[];
+} ch_hash_element_multi_t;
+
+
+typedef struct ch_hash_table_multi_ {
+    ch_hash_element_multi_t **buckets;
+    size_t size;
+} ch_hash_table_multi_t;
+
+
 void ch_hash_table_init(ch_hash_table_t *ht, size_t size);
+void ch_hash_table_multi_init(ch_hash_table_multi_t *ht, size_t size);
+
 void ch_hash_table_add(ch_hash_table_t *ht, void *key, size_t key_len, void *data);
+void ch_hash_table_multi_add(ch_hash_table_multi_t *ht, void *key, size_t key_len, void *data);
+
 void *ch_hash_table_find(ch_hash_table_t *ht, void *key, size_t key_len);
+void *ch_hash_table_multi_find(ch_hash_table_multi_t *ht, void *key, size_t key_len);
+
 void ch_hash_table_free(ch_hash_table_t *ht);
+void ch_hash_table_multi_free(ch_hash_table_multi_t *ht);
 
 
 #endif /* end of include guard */

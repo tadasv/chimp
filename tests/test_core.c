@@ -17,10 +17,53 @@ START_TEST(test_ch_hash_table_init)
 END_TEST
 
 
+START_TEST(test_ch_hash_table_multi_init)
+{
+    ch_hash_table_multi_t ht;
+    ch_hash_table_multi_init(&ht, 10);
+    ch_hash_table_multi_free(&ht);
+}
+END_TEST
+
+
+START_TEST(test_ch_hash_table_multi_add)
+{
+    ch_hash_table_multi_t ht;
+    int data = 1;
+    int data2 = 2;
+
+    /* one bucket so that we always get collisions */
+    ch_hash_table_multi_init(&ht, 1);
+    ck_assert(ch_hash_table_multi_find(&ht, "k1", 2) == NULL);
+    ch_hash_table_multi_add(&ht, "k1", 2, &data);
+    ck_assert(ch_hash_table_multi_find(&ht, "k1", 2) == &data);
+    ch_hash_table_multi_add(&ht, "k2", 2, &data2);
+    ck_assert(ch_hash_table_multi_find(&ht, "k1", 2) == &data);
+    ck_assert(ch_hash_table_multi_find(&ht, "k2", 2) == &data2);
+    ch_hash_table_multi_add(&ht, "k1", 2, &data2);
+    ck_assert(ch_hash_table_multi_find(&ht, "k1", 2) == &data2);
+    ck_assert(ch_hash_table_multi_find(&ht, "k2", 2) == &data2);
+    ch_hash_table_multi_free(&ht);
+
+    /* same thing with more buckets */
+    ch_hash_table_multi_init(&ht, 10);
+    ck_assert(ch_hash_table_multi_find(&ht, "k1", 2) == NULL);
+    ch_hash_table_multi_add(&ht, "k1", 2, &data);
+    ck_assert(ch_hash_table_multi_find(&ht, "k1", 2) == &data);
+    ch_hash_table_multi_add(&ht, "k2", 2, &data2);
+    ck_assert(ch_hash_table_multi_find(&ht, "k1", 2) == &data);
+    ck_assert(ch_hash_table_multi_find(&ht, "k2", 2) == &data2);
+    ch_hash_table_multi_add(&ht, "k1", 2, &data2);
+    ck_assert(ch_hash_table_multi_find(&ht, "k1", 2) == &data2);
+    ck_assert(ch_hash_table_multi_find(&ht, "k2", 2) == &data2);
+    ch_hash_table_multi_free(&ht);
+}
+END_TEST
+
+
 START_TEST(test_ch_hash_table_add)
 {
     ch_hash_table_t ht;
-    ch_hash_element_t *elem;
     int data = 1;
     int data2 = 2;
 
@@ -292,6 +335,9 @@ int main(int argc, const char *argv[])
 
     TCase *ch_hash_table_test_case = tcase_create("ch_hash_table");
     tcase_add_test(ch_hash_table_test_case, test_ch_hash_table_init);
+    tcase_add_test(ch_hash_table_test_case, test_ch_hash_table_add);
+    tcase_add_test(ch_hash_table_test_case, test_ch_hash_table_multi_init);
+    tcase_add_test(ch_hash_table_test_case, test_ch_hash_table_multi_add);
 
     TCase *ch_row_test_case = tcase_create("ch_row");
     tcase_add_test(ch_row_test_case, test_ch_row_init);
