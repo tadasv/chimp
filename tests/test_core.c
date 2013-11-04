@@ -27,12 +27,9 @@ START_TEST(test_ch_hash_table_add)
     ch_hash_table_init(&ht, 12);
     ck_assert(ch_hash_table_find(&ht, "123", 3) == NULL);
     ch_hash_table_add(&ht, "123", 3, &data);
-    elem = ch_hash_table_find(&ht, "123", 3);
-    ck_assert(elem != NULL);
-    ck_assert(elem->data == &data);
+    ck_assert(ch_hash_table_find(&ht, "123", 3) == &data);
     ch_hash_table_add(&ht, "123", 3, &data2);
-    elem = ch_hash_table_find(&ht, "123", 3);
-    ck_assert(elem->data == &data2);
+    ck_assert(ch_hash_table_find(&ht, "123", 3) == &data2);
     ch_hash_table_free(&ht);
 }
 END_TEST

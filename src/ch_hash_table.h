@@ -41,7 +41,7 @@ typedef struct ch_hash_table_ {
 
 void ch_hash_table_init(ch_hash_table_t *ht, size_t size);
 void ch_hash_table_add(ch_hash_table_t *ht, void *key, size_t key_len, void *data);
-ch_hash_element_t* ch_hash_table_find(ch_hash_table_t *ht, void *key, size_t key_len);
+void *ch_hash_table_find(ch_hash_table_t *ht, void *key, size_t key_len);
 void ch_hash_table_free(ch_hash_table_t *ht);
 
 

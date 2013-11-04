@@ -68,7 +68,7 @@ void ch_hash_table_add(ch_hash_table_t *ht, void *key, size_t key_len, void *dat
 }
 
 
-ch_hash_element_t* ch_hash_table_find(ch_hash_table_t *ht, void *key, size_t key_len)
+void *ch_hash_table_find(ch_hash_table_t *ht, void *key, size_t key_len)
 {
     uint64_t hash[2] = {0,0};
     uint32_t bucket_index;
@@ -78,7 +78,11 @@ ch_hash_element_t* ch_hash_table_find(ch_hash_table_t *ht, void *key, size_t key
 
     MurmurHash3_x64_128(key, key_len, MURMUR_SALT, hash);
     bucket_index = hash[0] % ht->size;
-    return ht->buckets[bucket_index];
+    if (!ht->buckets[bucket_index]) {
+        return NULL;
+    }
+
+    return ht->buckets[bucket_index]->data;
 }
 
 
