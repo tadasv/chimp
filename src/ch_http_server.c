@@ -29,12 +29,6 @@
 #include <ch_http_message.h>
 
 
-typedef struct ch_write_req_ {
-    ch_http_client_t *client;
-    uv_buf_t buf;
-} ch_write_req_t;
-
-
 void close_cb(uv_handle_t *client_handle);
 static void _connection_cb(uv_stream_t *server_handle, int status);
 static void _read_cb(uv_stream_t *client_handle, ssize_t nread, uv_buf_t buf);
