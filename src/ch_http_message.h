@@ -60,5 +60,6 @@ typedef struct ch_http_message_ {
 void ch_http_message_init(ch_http_message_t *msg);
 void ch_http_message_free(ch_http_message_t *msg);
 
+const char *ch_http_message_get_header(ch_http_message_t *msg, const char *name);
 
 #endif /* end of include guard */

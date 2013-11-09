@@ -39,7 +39,3 @@ void ch_http_handler_not_found(ch_http_client_t *client)
     // Write will take over memory ownership.
     ch_http_client_finish(client, &str);
 }
-
-
-
-

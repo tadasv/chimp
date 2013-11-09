@@ -28,5 +28,7 @@
 void ch_http_handler_bad_request(ch_http_client_t *client);
 void ch_http_handler_not_found(ch_http_client_t *client);
 
+void ch_http_handler_dataset(ch_http_client_t *client);
+
 
 #endif /* end of include guard */

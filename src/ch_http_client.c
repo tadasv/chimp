@@ -20,9 +20,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+#include <assert.h>
 #include <stdlib.h>
 #include <ch_log.h>
 #include <ch_http_client.h>
+
+
+const char *HTTP_STATUS_LINE_200 = "HTTP/1.0 200 OK\r\n";
+const char *HTTP_STATUS_LINE_400 = "HTTP/1.0 400 Bad Request\r\n";
+const char *HTTP_STATUS_LINE_404 = "HTTP/1.0 404 Not Found\r\n";
+const char *HTTP_STATUS_LINE_500 = "HTTP/1.0 500 Internal Error\r\n";
 
 
 typedef struct ch_http_write_req_ {
@@ -103,7 +110,16 @@ void ch_http_client_write(ch_http_client_t *client, ch_str_t *str)
 
 void ch_http_client_finish(ch_http_client_t *client, ch_str_t *str)
 {
-    ch_http_write_req_t *req = malloc(sizeof(ch_http_write_req_t));
+    assert(client);
+    ch_http_write_req_t *req;
+
+    if (!str) {
+        /* don't do anything just close the connection */
+        uv_close((uv_handle_t*)&client->handle, close_cb);
+        return;
+    }
+
+    req = malloc(sizeof(ch_http_write_req_t));
     req->client = client;
     req->buf.base = str->data;
     req->buf.len = str->len;
@@ -112,6 +128,61 @@ void ch_http_client_finish(ch_http_client_t *client, ch_str_t *str)
     uv_write((uv_write_t*)req,
              (uv_stream_t*)&client->handle,
              &req->buf, 1, _write_cb);
+}
+
+
+void ch_http_client_write_header(ch_http_client_t *client, const char *name, const char *value, int final_header)
+{
+    assert(client);
+    assert(name);
+    assert(value);
+
+    ch_str_t header_str;
+    int name_len = strlen(name);
+    int value_len = strlen(value);
+    /* +3 = \r\n\0 */
+    int buffer_size = name_len + value_len + 3;
+
+    if (final_header) {
+        buffer_size += 2;
+    }
+
+    ch_str_init_alloc(&header_str, buffer_size);
+    ch_str_lcat(&header_str, name, name_len);
+    ch_str_lcat(&header_str, ": ", 2);
+    ch_str_lcat(&header_str, value, value_len);
+
+    if (final_header) {
+        ch_str_lcat(&header_str, "\r\n\r\n", 4);
+    } else {
+        ch_str_lcat(&header_str, "\r\n", 2);
+    }
+
+    ch_http_client_write(client, &header_str);
+}
+
+
+void ch_http_client_write_status_line(ch_http_client_t *client, int status_code)
+{
+    ch_str_t status_line;
+
+    switch (status_code) {
+        case 200:
+            ch_str_init(&status_line, HTTP_STATUS_LINE_200);
+            break;
+        case 400:
+            ch_str_init(&status_line, HTTP_STATUS_LINE_400);
+            break;
+        case 404:
+            ch_str_init(&status_line, HTTP_STATUS_LINE_404);
+            break;
+        case 500:
+        default:
+            ch_str_init(&status_line, HTTP_STATUS_LINE_500);
+            break;
+    }
+
+    ch_http_client_write(client, &status_line);
 }
 
 

@@ -53,6 +53,11 @@ typedef void(*ch_http_handler_t)(ch_http_client_t *client);
 
 int ch_http_client_init(ch_http_client_t *client, ch_http_server_t *server);
 void ch_http_client_write(ch_http_client_t *client, ch_str_t *str);
+void ch_http_client_write_status_line(ch_http_client_t *client, int status_code);
+void ch_http_client_write_header(ch_http_client_t *client,
+                                 const char *name,
+                                 const char *value,
+                                 int final_header);
 void ch_http_client_finish(ch_http_client_t *client, ch_str_t *str);
 void ch_http_client_free(ch_http_client_t *client);
 

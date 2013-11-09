@@ -197,39 +197,30 @@ static int _headers_complete_cb(http_parser *parser)
         /* setup csv table since POST/PUT request should always
          * contain csv data */
 
-        /* find the number of columns in the dataset from headers.
-         * We don't care about the rows since we can grow vertically
-         * but not horizontally. */
-        ch_node_t *node = client->request.headers.head;
-        while (node) {
-            ch_keyval_t *kv = node->data;
-            if (strncmp("Data-Columns", kv->key.data, 12) == 0) {
-                long ncols;
-
-                if (ch_str_to_long(kv->value.data, &ncols) != 0) {
-                    CH_LOG_ERROR("failed to parse int: %s", kv->value.data);
-                    ch_http_handler_bad_request(client);
-                    return -1;
-                } else if (ncols < 1) {
-                    CH_LOG_ERROR("not enough columns");
-                    ch_http_handler_bad_request(client);
-                    return -1;
-                } else {
-                    /* lazy allocation of csv table. Memory will be released
-                     * upon the destruction of the request object */
-                    client->request.csv_table = malloc(sizeof(ch_table_t));
-                    /* TODO pick better initial index size */
-                    ch_table_init(client->request.csv_table, ncols, 10);
-                    return 0;
-                }
-
-                break;
-            }
-            node = node->next;
+        long ncols;
+        const char *header_value = ch_http_message_get_header(&client->request,
+                                                              "Dataset-Cols");
+        if (!header_value) {
+            ch_http_handler_bad_request(client);
+            return -1;
         }
 
-        ch_http_handler_bad_request(client);
-        return -1;
+        if (ch_str_to_long(header_value, &ncols) != 0) {
+            CH_LOG_ERROR("failed to parse int: %s", header_value);
+            ch_http_handler_bad_request(client);
+            return -1;
+        } else if (ncols < 1) {
+            CH_LOG_ERROR("not enough columns");
+            ch_http_handler_bad_request(client);
+            return -1;
+        } else {
+            /* lazy allocation of csv table. Memory will be released
+             * upon the destruction of the request object */
+            client->request.csv_table = malloc(sizeof(ch_table_t));
+            /* TODO pick better initial index size */
+            ch_table_init(client->request.csv_table, ncols, 10);
+            return 0;
+        }
     }
 
     return 0;
@@ -282,9 +273,9 @@ static int _message_complete(http_parser *parser)
      */
 
     /* call request handler */
-    handler = ch_hash_table_find(&client->server->handlers,
-                                 client->request.path.data,
-                                 client->request.path.len);
+    handler = ch_hash_table_multi_find(&client->server->handlers,
+                                       client->request.path.data,
+                                       client->request.path.len);
     if (!handler) {
         ch_http_handler_not_found(client);
         return 0;
@@ -381,7 +372,8 @@ int ch_http_server_init(ch_http_server_t *server, ch_http_server_settings_t *set
     server->handle.data = server;
 
     // TODO switch to hash table that can handle collisions
-    ch_hash_table_init(&server->handlers, 64);
+    ch_hash_table_multi_init(&server->handlers, 32);
+    ch_http_server_add_handler(server, "/datasets", &ch_http_handler_dataset);
 
     return 0;
 }
@@ -393,11 +385,11 @@ int ch_http_server_add_handler(ch_http_server_t *server, const char *path, void 
 
     int len = strlen(path);
 
-    if (ch_hash_table_find(&server->handlers, (void*)path, len)) {
+    if (ch_hash_table_multi_find(&server->handlers, (void*)path, len)) {
         return -1;
     }
 
-    ch_hash_table_add(&server->handlers, (void*)path, len, handler);
+    ch_hash_table_multi_add(&server->handlers, (void*)path, len, handler);
     return 0;
 }
 

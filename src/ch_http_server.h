@@ -42,7 +42,7 @@ typedef struct ch_http_server_ {
     http_parser_settings parser_settings;
     csv_parser_settings_t csv_parser_settings;
     ch_http_server_settings_t *settings;
-    ch_hash_table_t handlers;
+    ch_hash_table_multi_t handlers;
 } ch_http_server_t;
 
 

@@ -7,6 +7,7 @@ chimp_SOURCES = http_parser.c \
                 http_parser.h \
                 ch_http_handler.h \
                 ch_http_handler_error.c \
+                ch_http_handler_dataset.c \
                 ch_http_client.c \
                 ch_http_client.h \
                 ch_http_server.c \

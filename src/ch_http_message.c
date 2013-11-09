@@ -20,6 +20,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ch_http_message.h>
@@ -58,4 +59,23 @@ void ch_http_message_free(ch_http_message_t *msg)
         free(msg->csv_table);
         msg->csv_table = NULL;
     }
+}
+
+
+const char *ch_http_message_get_header(ch_http_message_t *msg, const char *name)
+{
+    assert(msg);
+
+    ch_keyval_t *kv;
+    ch_node_t *node = msg->headers.head;
+    while (node) {
+        kv = node->data;
+        if (strcmp(name, kv->key.data) == 0) {
+            return kv->value.data;
+        }
+
+        node = node->next;
+    }
+
+    return NULL;
 }
