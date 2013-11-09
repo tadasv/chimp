@@ -24,6 +24,8 @@ chimp_SOURCES = http_parser.c \
                 ch_table.c \
                 ch_table.h \
                 ch_chimpd.h \
+                ch_dataset.h \
+                ch_dataset.c \
                 murmur.c \
                 murmur.h \
                 main.c
