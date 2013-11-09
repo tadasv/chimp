@@ -22,6 +22,7 @@
  */
 #include <assert.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include <string.h>
 #include <ch_string.h>
 
@@ -137,4 +138,23 @@ int ch_str_to_double(const char *s, double *out)
     }
 
     return 0;
+}
+
+
+void ch_str_printf(ch_str_t *str, const char *format, ...)
+{
+    va_list ap;
+    char *ret;
+    int copied;
+
+    va_start(ap, format);
+    copied = vasprintf(&ret, format, ap);
+    va_end(ap);
+
+    if (copied == -1) {
+        return;
+    }
+
+    ch_str_lcat(str, ret, copied);
+    free(ret);
 }

@@ -43,6 +43,7 @@ void ch_str_linit(ch_str_t *str, const char *s, size_t len);
 void ch_str_init_alloc(ch_str_t *str, size_t size);
 void ch_str_cat(ch_str_t *str, const char *s);
 void ch_str_lcat(ch_str_t *str, const char *s, size_t len);
+void ch_str_printf(ch_str_t *str, const char *format, ...);
 void ch_str_free(ch_str_t *str);
 
 int ch_str_to_long(const char *s, long *out);

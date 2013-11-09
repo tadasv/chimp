@@ -218,6 +218,20 @@ START_TEST(test_ch_str_to_double)
 END_TEST
 
 
+START_TEST(test_ch_str_printf)
+{
+    ch_str_t str;
+
+    ch_str_init_alloc(&str, 2);
+    ch_str_printf(&str, "1");
+    ck_assert(strcmp(str.data, "1") == 0);
+    ch_str_printf(&str, "test %d", 2);
+    ck_assert(strcmp(str.data, "1test 2") == 0);
+    ch_str_free(&str);
+}
+END_TEST
+
+
 START_TEST(test_ch_row_init)
 {
     ch_row_t row;
@@ -332,6 +346,7 @@ int main(int argc, const char *argv[])
     tcase_add_test(ch_str_test_case, test_ch_str_lcat);
     tcase_add_test(ch_str_test_case, test_ch_str_to_long);
     tcase_add_test(ch_str_test_case, test_ch_str_to_double);
+    tcase_add_test(ch_str_test_case, test_ch_str_printf);
 
     TCase *ch_hash_table_test_case = tcase_create("ch_hash_table");
     tcase_add_test(ch_hash_table_test_case, test_ch_hash_table_init);
