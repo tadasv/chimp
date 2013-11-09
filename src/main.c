@@ -26,14 +26,11 @@
 #include <assert.h>
 #include <uv.h>
 #include <ch_log.h>
+#include <ch_chimpd.h>
 #include <ch_http_server.h>
 
 
-typedef struct {
-    int port;
-} chimp_settings_t;
-
-static chimp_settings_t chimp_settings;
+ch_chimpd_t chimpd;
 
 
 static void print_version()
@@ -61,14 +58,13 @@ static void parse_command_line(int argc, char * const argv[])
     int cmd_option;
     extern char *optarg;
 
-    memset(&chimp_settings, 0, sizeof(chimp_settings));
     while ((cmd_option = getopt(argc, argv, "hvp:")) != -1) {
         switch (cmd_option) {
             case 'v':
                 print_version();
                 break;
             case 'p':
-                chimp_settings.port = strtol(optarg, NULL, 10);
+                chimpd.settings.port = strtol(optarg, NULL, 10);
                 break;
             case 'h':
             default:
@@ -76,7 +72,7 @@ static void parse_command_line(int argc, char * const argv[])
         }
     }
 
-    if (chimp_settings.port <= 0) {
+    if (chimpd.settings.port <= 0) {
         printf("missing port number\n");
         usage(argv[0]);
     }
@@ -89,9 +85,12 @@ int main(int argc, char * const argv[])
     ch_http_server_t http_server;
     ch_http_server_settings_t http_server_settings;
 
+    memset(&chimpd, 0, sizeof(chimpd));
+    ch_hash_table_multi_init(&chimpd.datasets, 1024);
+
     parse_command_line(argc, argv);
 
-    http_server_settings.port = chimp_settings.port;
+    http_server_settings.port = chimpd.settings.port;
     http_server_settings.socket_backlog = 128;
 
     ch_http_server_init(&http_server, &http_server_settings, loop);
