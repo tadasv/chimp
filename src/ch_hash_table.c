@@ -172,6 +172,7 @@ void *ch_hash_table_multi_find(ch_hash_table_multi_t *ht, void *key, size_t key_
     while (elem) {
         if (elem->length != key_len) {
             elem = elem->next;
+            continue;
         }
 
         if (memcmp(elem->key, key, key_len) == 0) {
@@ -182,6 +183,61 @@ void *ch_hash_table_multi_find(ch_hash_table_multi_t *ht, void *key, size_t key_
     }
 
     return NULL;
+}
+
+
+void ch_hash_table_delete(ch_hash_table_t *ht, void *key, size_t key_len)
+{
+    uint64_t hash[2] = {0,0};
+    uint32_t bucket_index;
+
+    assert(ht);
+    assert(key);
+
+    MurmurHash3_x64_128(key, key_len, MURMUR_SALT, hash);
+    bucket_index = hash[0] % ht->size;
+
+    if (!ht->buckets[bucket_index]) {
+        return NULL;
+    }
+
+    free(ht->buckets[bucket_index]);
+    ht->buckets[bucket_index] = NULL;
+}
+
+
+void ch_hash_table_multi_delete(ch_hash_table_multi_t *ht, void *key, size_t key_len)
+{
+    uint64_t hash[2] = {0,0};
+    uint32_t bucket_index;
+    ch_hash_element_multi_t *elem;
+
+    assert(ht);
+    assert(key);
+
+    MurmurHash3_x64_128(key, key_len, MURMUR_SALT, hash);
+    bucket_index = hash[0] % ht->size;
+
+    elem = ht->buckets[bucket_index];
+    while (elem) {
+        if (elem->length != key_len) {
+            elem = elem->next;
+            continue;
+        }
+
+        if (memcmp(elem->key, key, key_len) == 0) {
+            if (elem->prev) {
+                elem->prev->next = elem->next;
+            } else {
+                /* element is head */
+                ht->buckets[bucket_index] = elem->next;
+            }
+            free(elem);
+            return;
+        }
+
+        elem = elem->next;
+    }
 }
 
 

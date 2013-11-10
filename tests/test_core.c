@@ -61,6 +61,49 @@ START_TEST(test_ch_hash_table_multi_add)
 END_TEST
 
 
+START_TEST(test_ch_hash_table_delete)
+{
+    ch_hash_table_t ht;
+    int data = 123;
+
+    ch_hash_table_init(&ht, 10);
+    ch_hash_table_add(&ht, "key", 3, &data);
+    ck_assert(ch_hash_table_find(&ht, "key", 3) == &data);
+    ch_hash_table_delete(&ht, "key", 3);
+    ck_assert(ch_hash_table_find(&ht, "key", 3) == NULL);
+    ch_hash_table_delete(&ht, "key2", 4);
+    ch_hash_table_free(&ht);
+}
+END_TEST
+
+
+START_TEST(test_ch_hash_table_multi_delete)
+{
+    ch_hash_table_multi_t ht;
+    int data = 123;
+
+    /* size one, to test removal on collisions */
+    ch_hash_table_multi_init(&ht, 1);
+    ch_hash_table_multi_add(&ht, "key", 3, &data);
+    ch_hash_table_multi_add(&ht, "key2", 4, &data);
+    ck_assert(ch_hash_table_multi_find(&ht, "key", 3) == &data);
+    ck_assert(ch_hash_table_multi_find(&ht, "key2", 4) == &data);
+    ch_hash_table_multi_delete(&ht, "key", 3);
+    ck_assert(ch_hash_table_multi_find(&ht, "key", 3) == NULL);
+    ck_assert(ch_hash_table_multi_find(&ht, "key2", 4) == &data);
+    ch_hash_table_multi_free(&ht);
+
+    ch_hash_table_multi_init(&ht, 20);
+    ch_hash_table_multi_add(&ht, "key", 3, &data);
+    ck_assert(ch_hash_table_multi_find(&ht, "key", 3) == &data);
+    ch_hash_table_multi_delete(&ht, "key", 3);
+    ck_assert(ch_hash_table_multi_find(&ht, "key", 3) == NULL);
+    ch_hash_table_multi_delete(&ht, "key2", 4);
+    ch_hash_table_multi_free(&ht);
+}
+END_TEST
+
+
 START_TEST(test_ch_hash_table_add)
 {
     ch_hash_table_t ht;
@@ -351,8 +394,10 @@ int main(int argc, const char *argv[])
     TCase *ch_hash_table_test_case = tcase_create("ch_hash_table");
     tcase_add_test(ch_hash_table_test_case, test_ch_hash_table_init);
     tcase_add_test(ch_hash_table_test_case, test_ch_hash_table_add);
+    tcase_add_test(ch_hash_table_test_case, test_ch_hash_table_delete);
     tcase_add_test(ch_hash_table_test_case, test_ch_hash_table_multi_init);
     tcase_add_test(ch_hash_table_test_case, test_ch_hash_table_multi_add);
+    tcase_add_test(ch_hash_table_test_case, test_ch_hash_table_multi_delete);
 
     TCase *ch_row_test_case = tcase_create("ch_row");
     tcase_add_test(ch_row_test_case, test_ch_row_init);

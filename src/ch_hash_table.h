@@ -63,6 +63,9 @@ void ch_hash_table_multi_add(ch_hash_table_multi_t *ht, void *key, size_t key_le
 void *ch_hash_table_find(ch_hash_table_t *ht, void *key, size_t key_len);
 void *ch_hash_table_multi_find(ch_hash_table_multi_t *ht, void *key, size_t key_len);
 
+void ch_hash_table_delete(ch_hash_table_t *ht, void *key, size_t key_len);
+void ch_hash_table_multi_delete(ch_hash_table_multi_t *ht, void *key, size_t key_len);
+
 void ch_hash_table_free(ch_hash_table_t *ht);
 void ch_hash_table_multi_free(ch_hash_table_multi_t *ht);
 
