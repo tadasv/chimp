@@ -36,7 +36,7 @@ void ch_hash_table_init(ch_hash_table_t *ht, size_t size)
 
     size_t i;
     ht->size = size;
-    ht->buckets = malloc(sizeof(ch_hash_element_t*) * size);
+    ht->buckets = (ch_hash_element_t**)malloc(sizeof(ch_hash_element_t*) * size);
 
     for (i = 0; i < size; i++) {
         ht->buckets[i] = NULL;
@@ -50,7 +50,7 @@ void ch_hash_table_multi_init(ch_hash_table_multi_t *ht, size_t size)
 
     size_t i;
     ht->size = size;
-    ht->buckets = malloc(sizeof(ch_hash_element_multi_t*) * size);
+    ht->buckets = (ch_hash_element_multi_t**)malloc(sizeof(ch_hash_element_multi_t*) * size);
 
     for (i = 0; i < size; i++) {
         ht->buckets[i] = NULL;
@@ -74,7 +74,7 @@ void ch_hash_table_add(ch_hash_table_t *ht, void *key, size_t key_len, void *dat
         free(ht->buckets[bucket_index]);
     }
 
-    elem = malloc(sizeof(ch_hash_element_t) + key_len);
+    elem = (ch_hash_element_t*)malloc(sizeof(ch_hash_element_t) + key_len);
     elem->data = data;
     elem->length = key_len;
     memcpy(elem->key, key, key_len);
@@ -96,7 +96,7 @@ void ch_hash_table_multi_add(ch_hash_table_multi_t *ht, void *key, size_t key_le
     bucket_index = hash[0] % ht->size;
 
     if (!ht->buckets[bucket_index]) {
-        new_elem = malloc(sizeof(ch_hash_element_multi_t) + key_len);
+        new_elem = (ch_hash_element_multi_t*)malloc(sizeof(ch_hash_element_multi_t) + key_len);
         new_elem->data = data;
         new_elem->length = key_len;
         new_elem->prev = NULL;
@@ -124,7 +124,7 @@ void ch_hash_table_multi_add(ch_hash_table_multi_t *ht, void *key, size_t key_le
     }
 
     /* not found, insert new element at the beginning */
-    new_elem = malloc(sizeof(ch_hash_element_multi_t) + key_len);
+    new_elem = (ch_hash_element_multi_t*)malloc(sizeof(ch_hash_element_multi_t) + key_len);
     new_elem->data = data;
     new_elem->length = key_len;
     new_elem->prev = NULL;

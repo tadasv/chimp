@@ -33,7 +33,7 @@ void ch_table_init(ch_table_t *table, size_t cols, size_t index_size)
     table->cols_per_row = cols;
     table->index_size = index_size;
     table->nrows = 0;
-    table->index = malloc(sizeof(ch_row_t*) * index_size);
+    table->index = (ch_row_t**)malloc(sizeof(ch_row_t*) * index_size);
     memset(table->index, 0, sizeof(ch_row_t*) * index_size);
 }
 
@@ -75,11 +75,11 @@ int ch_table_set(ch_table_t *table, off_t row, off_t col, double value)
 
     /* make sure that we have enough room in index for a new row */
     if (row >= table->index_size) {
-        table->index = realloc(table->index, sizeof(ch_row_t*) * 2 * table->index_size);
+        table->index = (ch_row_t**)realloc(table->index, sizeof(ch_row_t*) * 2 * table->index_size);
         table->index_size = table->index_size * 2;
     }
 
-    new_row = malloc(sizeof(ch_row_t));
+    new_row = (ch_row_t*)malloc(sizeof(ch_row_t));
     ch_row_init(new_row, table->cols_per_row);
 
     assert(row == table->nrows);

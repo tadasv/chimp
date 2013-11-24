@@ -66,7 +66,7 @@ static inline void _http_parser_field_data(const struct http_parser_url *p,
 
 static int _csv_field_cb(csv_parser_t *parser, const char *data, size_t length, int row, int col)
 {
-    ch_http_client_t *client = parser->data;
+    ch_http_client_t *client = (ch_http_client_t*)parser->data;
 
     int current_row = client->current_csv_row;
     int current_col = client->current_csv_col;
@@ -113,7 +113,7 @@ static int _csv_field_cb(csv_parser_t *parser, const char *data, size_t length, 
 
 static int _message_begin(http_parser *parser)
 {
-    ch_http_client_t *client = parser->data;
+    ch_http_client_t *client = (ch_http_client_t*)parser->data;
     client->request.read_state = CH_HTTP_MESSAGE_PROCESSING;
     return 0;
 }
@@ -121,7 +121,7 @@ static int _message_begin(http_parser *parser)
 
 static int _url_cb(http_parser *parser, const char *at, size_t length)
 {
-    ch_http_client_t *client = parser->data;
+    ch_http_client_t *client = (ch_http_client_t*)parser->data;
     struct http_parser_url parser_url;
 
     ch_str_linit(&client->request.uri, at, length);
@@ -164,7 +164,7 @@ static int _url_cb(http_parser *parser, const char *at, size_t length)
 
 static int _header_field(http_parser *parser, const char *at, size_t len)
 {
-    ch_http_client_t *client = parser->data;
+    ch_http_client_t *client = (ch_http_client_t*)parser->data;
 
     if (client->header_value.len != 0) {
         ch_keyval_t *header = (ch_keyval_t*)malloc(sizeof(ch_keyval_t));
@@ -183,7 +183,7 @@ static int _header_field(http_parser *parser, const char *at, size_t len)
 
 static int _header_value(http_parser *parser, const char *at, size_t len)
 {
-    ch_http_client_t *client = parser->data;
+    ch_http_client_t *client = (ch_http_client_t*)parser->data;
     ch_str_lcat(&client->header_value, at, len);
     return 0;
 }
@@ -191,7 +191,7 @@ static int _header_value(http_parser *parser, const char *at, size_t len)
 
 static int _headers_complete_cb(http_parser *parser)
 {
-    ch_http_client_t *client = parser->data;
+    ch_http_client_t *client = (ch_http_client_t*)parser->data;
 
     if (client->request.method == CH_HTTP_REQUEST_METHOD_POST ||
         client->request.method == CH_HTTP_REQUEST_METHOD_PUT) {
@@ -217,7 +217,7 @@ static int _headers_complete_cb(http_parser *parser)
         } else {
             /* lazy allocation of csv table. Memory will be released
              * upon the destruction of the request object */
-            client->request.csv_table = malloc(sizeof(ch_table_t));
+            client->request.csv_table = (ch_table_t*)malloc(sizeof(ch_table_t));
             /* TODO pick better initial index size */
             ch_table_init(client->request.csv_table, ncols, 10);
             return 0;
@@ -230,7 +230,7 @@ static int _headers_complete_cb(http_parser *parser)
 
 static int _body_cb(http_parser *parser, const char *at, size_t length)
 {
-    ch_http_client_t *client = parser->data;
+    ch_http_client_t *client = (ch_http_client_t*)parser->data;
 
     /* if csv_table is not null it means that the data headers
      * were correct and we are expecting CSV data.
@@ -252,7 +252,7 @@ static int _body_cb(http_parser *parser, const char *at, size_t length)
 
 static int _message_complete(http_parser *parser)
 {
-    ch_http_client_t *client = parser->data;
+    ch_http_client_t *client = (ch_http_client_t*)parser->data;
     client->request.read_state = CH_HTTP_MESSAGE_FINISHED;
 #if 0
     uv_work_t *request_job = malloc(sizeof(uv_work_t));
@@ -274,9 +274,9 @@ static int _message_complete(http_parser *parser)
      */
 
     /* call request handler */
-    handler = ch_hash_table_multi_find(&client->server->handlers,
-                                       client->request.path.data,
-                                       client->request.path.len);
+    handler = (ch_http_handler_t)ch_hash_table_multi_find(&client->server->handlers,
+                                                          client->request.path.data,
+                                                          client->request.path.len);
     if (!handler) {
         ch_http_handler_not_found(client);
         return 0;
@@ -291,7 +291,7 @@ static int _message_complete(http_parser *parser)
 uv_buf_t _alloc_cb(uv_handle_t* handle, size_t suggested_size)
 {
     uv_buf_t buf;
-    buf.base = malloc(suggested_size);
+    buf.base = (char*)malloc(suggested_size);
     buf.len = suggested_size;
     return buf;
 }
@@ -299,7 +299,7 @@ uv_buf_t _alloc_cb(uv_handle_t* handle, size_t suggested_size)
 
 void close_cb(uv_handle_t *client_handle)
 {
-    ch_http_client_t *client = client_handle->data;
+    ch_http_client_t *client = (ch_http_client_t*)client_handle->data;
     ch_http_client_free(client);
     free(client);
 }
@@ -307,7 +307,7 @@ void close_cb(uv_handle_t *client_handle)
 
 static void _read_cb(uv_stream_t *client_handle, ssize_t nread, uv_buf_t buf)
 {
-    ch_http_client_t *client = client_handle->data;
+    ch_http_client_t *client = (ch_http_client_t*)client_handle->data;
     size_t parsed;
 
     if (nread >= 0) {
@@ -335,7 +335,7 @@ static void _read_cb(uv_stream_t *client_handle, ssize_t nread, uv_buf_t buf)
 static void _connection_cb(uv_stream_t *server_handle, int status)
 {
     int r;
-    ch_http_server_t *server = server_handle->data;
+    ch_http_server_t *server = (ch_http_server_t*)server_handle->data;
     ch_http_client_t *client = (ch_http_client_t*)malloc(sizeof(ch_http_client_t));
 
     if (ch_http_client_init(client, server)) {
@@ -374,7 +374,7 @@ int ch_http_server_init(ch_http_server_t *server, ch_http_server_settings_t *set
 
     // TODO switch to hash table that can handle collisions
     ch_hash_table_multi_init(&server->handlers, 32);
-    ch_http_server_add_handler(server, "/datasets", &ch_http_handler_dataset);
+    ch_http_server_add_handler(server, "/datasets", (void*)&ch_http_handler_dataset);
 
     return 0;
 }

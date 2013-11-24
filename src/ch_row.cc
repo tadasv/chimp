@@ -30,7 +30,7 @@ void ch_row_init(ch_row_t *row, size_t ncols)
 {
     assert(row);
     row->ncols = ncols;
-    row->data = malloc(sizeof(double) * ncols);
+    row->data = (double*)malloc(sizeof(double) * ncols);
     memset(row->data, 0, sizeof(double) * ncols);
 }
 

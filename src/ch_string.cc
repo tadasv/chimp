@@ -53,7 +53,7 @@ void ch_str_linit(ch_str_t *str, const char *s, size_t len)
     assert(s);
     str->size = len + 1;
     str->len = len;
-    str->data = malloc(str->size);
+    str->data = (char*)malloc(str->size);
     strlcpy(str->data, s, str->size);
 }
 
@@ -63,7 +63,7 @@ void ch_str_init_alloc(ch_str_t *str, size_t size)
     assert(str);
     str->len = 0;
     str->size = size;
-    str->data = malloc(size);
+    str->data = (char*)malloc(size);
 }
 
 
@@ -94,7 +94,7 @@ void ch_str_lcat(ch_str_t *str, const char *s, size_t len)
     }
 
     new_size = (str->size + len) * 2;
-    new_data = malloc(new_size);
+    new_data = (char*)malloc(new_size);
     strlcpy(new_data, str->data, new_size);
     strlcpy(new_data + str->len, s, new_size - str->len);
     free(str->data);

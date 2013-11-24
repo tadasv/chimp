@@ -51,7 +51,7 @@ static void create_dataset(ch_http_client_t *client)
 
     /* we don't need to copy anything, just take ownership
      * of the memory */
-    new_dataset = malloc(sizeof(ch_dataset_t));
+    new_dataset = (ch_dataset_t*)malloc(sizeof(ch_dataset_t));
     ch_dataset_init(new_dataset);
     new_dataset->data = client->request.csv_table;
     client->request.csv_table = NULL;
@@ -77,7 +77,7 @@ static void delete_dataset(ch_http_client_t *client)
         return;
     }
 
-    dataset = ch_hash_table_multi_find(&chimpd.datasets,
+    dataset = (ch_dataset_t*)ch_hash_table_multi_find(&chimpd.datasets,
                                        (void*)dataset_name,
                                        strlen(dataset_name));
     if (dataset) {
@@ -106,7 +106,7 @@ static void list_datasets(ch_http_client_t *client)
     for (i = 0; i < chimpd.datasets.size; i++) {
         elem = chimpd.datasets.buckets[i];
         while (elem) {
-            ch_str_lcat(&response, elem->key, elem->length);
+            ch_str_lcat(&response, (const char*)elem->key, elem->length);
             ch_str_cat(&response, "\n");
             elem = elem->next;
         }

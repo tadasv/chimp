@@ -42,7 +42,7 @@ void ch_http_message_free(ch_http_message_t *msg)
 {
     ch_node_t *node = msg->headers.head;
     while (node) {
-        ch_keyval_t *keyval = node->data;
+        ch_keyval_t *keyval = (ch_keyval_t*)node->data;
         ch_str_free(&keyval->key);
         ch_str_free(&keyval->value);
         free(keyval);
@@ -69,7 +69,7 @@ const char *ch_http_message_get_header(ch_http_message_t *msg, const char *name)
     ch_keyval_t *kv;
     ch_node_t *node = msg->headers.head;
     while (node) {
-        kv = node->data;
+        kv = (ch_keyval_t*)node->data;
         if (strcmp(name, kv->key.data) == 0) {
             return kv->value.data;
         }

@@ -36,7 +36,7 @@ void ch_list_init_empty(ch_list_t *list)
 void ch_list_init(ch_list_t *list, void *data)
 {
     assert(list);
-    ch_node_t *node = malloc(sizeof(ch_node_t));
+    ch_node_t *node = (ch_node_t*)malloc(sizeof(ch_node_t));
     node->prev = NULL;
     node->next = NULL;
     node->data = data;
@@ -65,7 +65,7 @@ void ch_list_free(ch_list_t *list)
 void ch_list_append(ch_list_t *list, void *data)
 {
     assert(list);
-    ch_node_t *node = malloc(sizeof(ch_node_t));
+    ch_node_t *node = (ch_node_t*)malloc(sizeof(ch_node_t));
     node->prev = list->tail;
     node->next = NULL;
     node->data = data;

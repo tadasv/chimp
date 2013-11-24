@@ -16,6 +16,7 @@ CHIMP_ORIG_CPPFLAGS="${CPPFLAGS:-none}"
 CHIMP_ORIG_CXXFLAGS="${CXXFLAGS:-none}"
 
 # Checks for programs.
+AC_PROG_CXX
 AC_PROG_CC
 
 # Checks for libraries.

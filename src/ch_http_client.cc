@@ -97,7 +97,7 @@ static void _write_cb(uv_write_t *req, int status)
 
 void ch_http_client_write(ch_http_client_t *client, ch_str_t *str)
 {
-    ch_http_write_req_t *req = malloc(sizeof(ch_http_write_req_t));
+    ch_http_write_req_t *req = (ch_http_write_req_t*)malloc(sizeof(ch_http_write_req_t));
     req->client = client;
     req->buf.base = str->data;
     req->buf.len = str->len;
@@ -120,7 +120,7 @@ void ch_http_client_finish(ch_http_client_t *client, ch_str_t *str)
         return;
     }
 
-    req = malloc(sizeof(ch_http_write_req_t));
+    req = (ch_http_write_req_t*)malloc(sizeof(ch_http_write_req_t));
     req->client = client;
     req->buf.base = str->data;
     req->buf.len = str->len;

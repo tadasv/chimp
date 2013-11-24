@@ -34,28 +34,28 @@ START_TEST(test_ch_hash_table_multi_add)
 
     /* one bucket so that we always get collisions */
     ch_hash_table_multi_init(&ht, 1);
-    ck_assert(ch_hash_table_multi_find(&ht, "k1", 2) == NULL);
-    ch_hash_table_multi_add(&ht, "k1", 2, &data);
-    ck_assert(ch_hash_table_multi_find(&ht, "k1", 2) == &data);
-    ch_hash_table_multi_add(&ht, "k2", 2, &data2);
-    ck_assert(ch_hash_table_multi_find(&ht, "k1", 2) == &data);
-    ck_assert(ch_hash_table_multi_find(&ht, "k2", 2) == &data2);
-    ch_hash_table_multi_add(&ht, "k1", 2, &data2);
-    ck_assert(ch_hash_table_multi_find(&ht, "k1", 2) == &data2);
-    ck_assert(ch_hash_table_multi_find(&ht, "k2", 2) == &data2);
+    ck_assert(ch_hash_table_multi_find(&ht, (void*)"k1", 2) == NULL);
+    ch_hash_table_multi_add(&ht, (void*)"k1", 2, &data);
+    ck_assert(ch_hash_table_multi_find(&ht, (void*)"k1", 2) == &data);
+    ch_hash_table_multi_add(&ht, (void*)"k2", 2, &data2);
+    ck_assert(ch_hash_table_multi_find(&ht, (void*)"k1", 2) == &data);
+    ck_assert(ch_hash_table_multi_find(&ht, (void*)"k2", 2) == &data2);
+    ch_hash_table_multi_add(&ht, (void*)"k1", 2, &data2);
+    ck_assert(ch_hash_table_multi_find(&ht, (void*)"k1", 2) == &data2);
+    ck_assert(ch_hash_table_multi_find(&ht, (void*)"k2", 2) == &data2);
     ch_hash_table_multi_free(&ht);
 
     /* same thing with more buckets */
     ch_hash_table_multi_init(&ht, 10);
-    ck_assert(ch_hash_table_multi_find(&ht, "k1", 2) == NULL);
-    ch_hash_table_multi_add(&ht, "k1", 2, &data);
-    ck_assert(ch_hash_table_multi_find(&ht, "k1", 2) == &data);
-    ch_hash_table_multi_add(&ht, "k2", 2, &data2);
-    ck_assert(ch_hash_table_multi_find(&ht, "k1", 2) == &data);
-    ck_assert(ch_hash_table_multi_find(&ht, "k2", 2) == &data2);
-    ch_hash_table_multi_add(&ht, "k1", 2, &data2);
-    ck_assert(ch_hash_table_multi_find(&ht, "k1", 2) == &data2);
-    ck_assert(ch_hash_table_multi_find(&ht, "k2", 2) == &data2);
+    ck_assert(ch_hash_table_multi_find(&ht, (void*)"k1", 2) == NULL);
+    ch_hash_table_multi_add(&ht, (void*)"k1", 2, &data);
+    ck_assert(ch_hash_table_multi_find(&ht, (void*)"k1", 2) == &data);
+    ch_hash_table_multi_add(&ht, (void*)"k2", 2, &data2);
+    ck_assert(ch_hash_table_multi_find(&ht, (void*)"k1", 2) == &data);
+    ck_assert(ch_hash_table_multi_find(&ht, (void*)"k2", 2) == &data2);
+    ch_hash_table_multi_add(&ht, (void*)"k1", 2, &data2);
+    ck_assert(ch_hash_table_multi_find(&ht, (void*)"k1", 2) == &data2);
+    ck_assert(ch_hash_table_multi_find(&ht, (void*)"k2", 2) == &data2);
     ch_hash_table_multi_free(&ht);
 }
 END_TEST
@@ -67,11 +67,11 @@ START_TEST(test_ch_hash_table_delete)
     int data = 123;
 
     ch_hash_table_init(&ht, 10);
-    ch_hash_table_add(&ht, "key", 3, &data);
-    ck_assert(ch_hash_table_find(&ht, "key", 3) == &data);
-    ch_hash_table_delete(&ht, "key", 3);
-    ck_assert(ch_hash_table_find(&ht, "key", 3) == NULL);
-    ch_hash_table_delete(&ht, "key2", 4);
+    ch_hash_table_add(&ht, (void*)"key", 3, &data);
+    ck_assert(ch_hash_table_find(&ht, (void*)"key", 3) == &data);
+    ch_hash_table_delete(&ht, (void*)"key", 3);
+    ck_assert(ch_hash_table_find(&ht, (void*)"key", 3) == NULL);
+    ch_hash_table_delete(&ht, (void*)"key2", 4);
     ch_hash_table_free(&ht);
 }
 END_TEST
@@ -84,21 +84,21 @@ START_TEST(test_ch_hash_table_multi_delete)
 
     /* size one, to test removal on collisions */
     ch_hash_table_multi_init(&ht, 1);
-    ch_hash_table_multi_add(&ht, "key", 3, &data);
-    ch_hash_table_multi_add(&ht, "key2", 4, &data);
-    ck_assert(ch_hash_table_multi_find(&ht, "key", 3) == &data);
-    ck_assert(ch_hash_table_multi_find(&ht, "key2", 4) == &data);
-    ch_hash_table_multi_delete(&ht, "key", 3);
-    ck_assert(ch_hash_table_multi_find(&ht, "key", 3) == NULL);
-    ck_assert(ch_hash_table_multi_find(&ht, "key2", 4) == &data);
+    ch_hash_table_multi_add(&ht, (void*)"key", 3, &data);
+    ch_hash_table_multi_add(&ht, (void*)"key2", 4, &data);
+    ck_assert(ch_hash_table_multi_find(&ht, (void*)"key", 3) == &data);
+    ck_assert(ch_hash_table_multi_find(&ht, (void*)"key2", 4) == &data);
+    ch_hash_table_multi_delete(&ht, (void*)"key", 3);
+    ck_assert(ch_hash_table_multi_find(&ht, (void*)"key", 3) == NULL);
+    ck_assert(ch_hash_table_multi_find(&ht, (void*)"key2", 4) == &data);
     ch_hash_table_multi_free(&ht);
 
     ch_hash_table_multi_init(&ht, 20);
-    ch_hash_table_multi_add(&ht, "key", 3, &data);
-    ck_assert(ch_hash_table_multi_find(&ht, "key", 3) == &data);
-    ch_hash_table_multi_delete(&ht, "key", 3);
-    ck_assert(ch_hash_table_multi_find(&ht, "key", 3) == NULL);
-    ch_hash_table_multi_delete(&ht, "key2", 4);
+    ch_hash_table_multi_add(&ht, (void*)"key", 3, &data);
+    ck_assert(ch_hash_table_multi_find(&ht, (void*)"key", 3) == &data);
+    ch_hash_table_multi_delete(&ht, (void*)"key", 3);
+    ck_assert(ch_hash_table_multi_find(&ht, (void*)"key", 3) == NULL);
+    ch_hash_table_multi_delete(&ht, (void*)"key2", 4);
     ch_hash_table_multi_free(&ht);
 }
 END_TEST
@@ -111,11 +111,11 @@ START_TEST(test_ch_hash_table_add)
     int data2 = 2;
 
     ch_hash_table_init(&ht, 12);
-    ck_assert(ch_hash_table_find(&ht, "123", 3) == NULL);
-    ch_hash_table_add(&ht, "123", 3, &data);
-    ck_assert(ch_hash_table_find(&ht, "123", 3) == &data);
-    ch_hash_table_add(&ht, "123", 3, &data2);
-    ck_assert(ch_hash_table_find(&ht, "123", 3) == &data2);
+    ck_assert(ch_hash_table_find(&ht, (void*)"123", 3) == NULL);
+    ch_hash_table_add(&ht, (void*)"123", 3, &data);
+    ck_assert(ch_hash_table_find(&ht, (void*)"123", 3) == &data);
+    ch_hash_table_add(&ht, (void*)"123", 3, &data2);
+    ck_assert(ch_hash_table_find(&ht, (void*)"123", 3) == &data2);
     ch_hash_table_free(&ht);
 }
 END_TEST
