@@ -20,17 +20,54 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include <map>
+#ifndef CH_INCLUDE_GUARD_B4343471_000F_4433_B0C5_F24EDD78B69E
+#define CH_INCLUDE_GUARD_B4343471_000F_4433_B0C5_F24EDD78B69E
+
 #include <string>
-#include <ch_dataset.h>
+#include <msgpack.h>
+
+typedef enum ch_response_code_t {
+    CH_RESPONSE_CODE_OK = 200,
+    CH_RESPONSE_CODE_USER_ERROR = 400,
+    CH_RESPONSE_CODE_SERVER_ERROR = 500
+} ch_response_code_t;
 
 
-typedef struct ch_chimpd_settings_ {
-    int port;
-} ch_chimpd_settings_t;
+typedef enum ch_command_t {
+    CH_COMMAND_PING,
+    CH_COMMAND_DSNEW,
+} ch_command_t;
 
 
-typedef struct ch_chimpd_ {
-    ch_chimpd_settings_t settings;
-    std::map<std::string, ch_dataset_t*> datasets;
-} ch_chimpd_t;
+struct ch_message_t {
+    virtual msgpack_sbuffer *serialize() = 0;
+    virtual int unserialize(const msgpack_unpacked *msg) = 0;
+};
+
+
+struct ch_response_message_t : ch_message_t {
+    ch_response_code_t code;
+    std::string error;
+
+    ch_response_message_t();
+    ch_response_message_t(ch_response_code_t code);
+
+    msgpack_sbuffer *serialize();
+    int unserialize(const msgpack_unpacked *msg);
+};
+
+
+/*
+ * DSNEW command
+ *
+ * ["DSNEW", ["dataset name", 5]]
+ */
+struct ch_message_dsnew_t : ch_message_t {
+    std::string name;
+    unsigned int num_columns;
+
+    msgpack_sbuffer *serialize();
+    int unserialize(const msgpack_unpacked *msg);
+};
+
+#endif /* end of include guard */

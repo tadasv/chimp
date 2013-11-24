@@ -20,17 +20,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include <map>
-#include <string>
+#include <ch_log.h>
+#include <ch_protocol.h>
+#include <ch_client.h>
 #include <ch_dataset.h>
+#include <ch_chimpd.h>
 
+extern ch_chimpd_t chimpd;
 
-typedef struct ch_chimpd_settings_ {
-    int port;
-} ch_chimpd_settings_t;
+void ch_handler_dsnew(ch_client_t *client, ch_message_t *message)
+{
+    std::map<std::string, ch_dataset_t*>::iterator iter;
+    ch_message_dsnew_t *msg = dynamic_cast<ch_message_dsnew_t*>(message);
 
+    iter = chimpd.datasets.find(msg->name);
+    if (iter != chimpd.datasets.end()) {
+        ch_client_write(client, CH_RESPONSE_CODE_USER_ERROR, "dataset exists");
+        return;
+    }
 
-typedef struct ch_chimpd_ {
-    ch_chimpd_settings_t settings;
-    std::map<std::string, ch_dataset_t*> datasets;
-} ch_chimpd_t;
+    ch_dataset_t *dataset = new ch_dataset_t;
+
+    chimpd.datasets[msg->name] = dataset;
+    CH_LOG_DEBUG("created new dataset: %s, cols: %d", msg->name.c_str(), msg->num_columns);
+    ch_client_write(client, CH_RESPONSE_CODE_OK, NULL);
+}

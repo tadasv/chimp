@@ -28,7 +28,7 @@
 #include <uv.h>
 #include <ch_log.h>
 #include <ch_chimpd.h>
-#include <ch_http_server.h>
+#include <ch_server.h>
 
 
 ch_chimpd_t chimpd;
@@ -83,19 +83,16 @@ static void parse_command_line(int argc, char * const argv[])
 int main(int argc, char * const argv[])
 {
     uv_loop_t *loop = uv_default_loop();
-    ch_http_server_t http_server;
-    ch_http_server_settings_t http_server_settings;
-
-    memset(&chimpd, 0, sizeof(chimpd));
-    ch_hash_table_multi_init(&chimpd.datasets, 1024);
+    ch_server_t server;
+    ch_server_settings_t server_settings;
 
     parse_command_line(argc, argv);
 
-    http_server_settings.port = chimpd.settings.port;
-    http_server_settings.socket_backlog = 128;
+    server_settings.port = chimpd.settings.port;
+    server_settings.socket_backlog = 128;
 
-    ch_http_server_init(&http_server, &http_server_settings, loop);
-    if (ch_http_server_start(&http_server)) {
+    ch_server_init(&server, &server_settings, loop);
+    if (ch_server_start(&server)) {
         return -1;
     }
 

@@ -20,17 +20,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+#ifndef CH_INCLUDE_GUARD_E328F9CB_3BA1_42DB_978D_FE48847105B7
+#define CH_INCLUDE_GUARD_E328F9CB_3BA1_42DB_978D_FE48847105B7
+
+#include <uv.h>
 #include <map>
-#include <string>
-#include <ch_dataset.h>
+#include <ch_protocol.h>
 
 
-typedef struct ch_chimpd_settings_ {
+typedef struct ch_server_settings_ {
     int port;
-} ch_chimpd_settings_t;
+    int socket_backlog;
+} ch_server_settings_t;
 
 
-typedef struct ch_chimpd_ {
-    ch_chimpd_settings_t settings;
-    std::map<std::string, ch_dataset_t*> datasets;
-} ch_chimpd_t;
+typedef struct ch_server_ {
+    uv_loop_t *loop;
+    uv_tcp_t handle;
+    ch_server_settings_t *settings;
+    std::map<std::string, ch_command_t> commands;
+} ch_server_t;
+
+
+int ch_server_init(ch_server_t *server, ch_server_settings_t *settings, uv_loop_t *loop);
+int ch_server_start(ch_server_t *server);
+
+#endif /* end of include guard */

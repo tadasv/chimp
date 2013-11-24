@@ -20,17 +20,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include <map>
-#include <string>
-#include <ch_dataset.h>
+#ifndef INCLUDE_GUARD_2FAEAC1C_4958_4BB7_B6B6_0514498BBE84
+#define INCLUDE_GUARD_2FAEAC1C_4958_4BB7_B6B6_0514498BBE84
 
+#include <ch_protocol.h>
+#include <ch_client.h>
 
-typedef struct ch_chimpd_settings_ {
-    int port;
-} ch_chimpd_settings_t;
+void ch_handler_ping(ch_client_t *client, ch_message_t *message);
+void ch_handler_dsnew(ch_client_t *client, ch_message_t *message);
 
+#endif /* end of include guard */
 
-typedef struct ch_chimpd_ {
-    ch_chimpd_settings_t settings;
-    std::map<std::string, ch_dataset_t*> datasets;
-} ch_chimpd_t;

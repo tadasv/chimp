@@ -20,17 +20,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include <map>
-#include <string>
-#include <ch_dataset.h>
+#include <ch_log.h>
+#include <ch_protocol.h>
+#include <ch_client.h>
 
 
-typedef struct ch_chimpd_settings_ {
-    int port;
-} ch_chimpd_settings_t;
-
-
-typedef struct ch_chimpd_ {
-    ch_chimpd_settings_t settings;
-    std::map<std::string, ch_dataset_t*> datasets;
-} ch_chimpd_t;
+void ch_handler_ping(ch_client_t *client, ch_message_t *message)
+{
+    CH_LOG_DEBUG("ping handler");
+    ch_client_write(client, CH_RESPONSE_CODE_OK, NULL);
+}
