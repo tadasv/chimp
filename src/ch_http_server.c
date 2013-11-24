@@ -23,6 +23,7 @@
 #include <assert.h>
 #include <errno.h>
 #include <stdlib.h>
+#include <string.h>
 #include <ch_log.h>
 #include <ch_http_handlers.h>
 #include <ch_http_server.h>

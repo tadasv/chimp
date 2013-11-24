@@ -21,6 +21,8 @@
  * SOFTWARE.
  */
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <ch_chimpd.h>
 #include <ch_dataset.h>
 #include <ch_http_client.h>

@@ -198,7 +198,7 @@ void ch_hash_table_delete(ch_hash_table_t *ht, void *key, size_t key_len)
     bucket_index = hash[0] % ht->size;
 
     if (!ht->buckets[bucket_index]) {
-        return NULL;
+        return;
     }
 
     free(ht->buckets[bucket_index]);

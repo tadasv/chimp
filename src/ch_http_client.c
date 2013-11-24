@@ -22,6 +22,7 @@
  */
 #include <assert.h>
 #include <stdlib.h>
+#include <string.h>
 #include <ch_log.h>
 #include <ch_http_client.h>
 
