@@ -13,3 +13,4 @@ aclocal.m4
 *.log
 tests/test_core
 src/chimp
+.vagrant
