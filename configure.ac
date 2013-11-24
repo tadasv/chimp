@@ -20,10 +20,11 @@ AC_PROG_CC
 
 # Checks for libraries.
 AC_CHECK_LIB([uv], [uv_tcp_init])
+AC_CHECK_LIB([bsd], [strlcpy])
 AC_CHECK_LIB([csv_parser], [csv_parser_init])
 
 # Checks for header files.
-AC_CHECK_HEADERS([limits.h stddef.h stdint.h stdlib.h string.h uv.h csv_parser.h])
+AC_CHECK_HEADERS([limits.h stddef.h stdint.h stdlib.h string.h uv.h csv_parser.h bsd/string.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_TYPE_INT16_T
