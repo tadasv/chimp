@@ -15,6 +15,6 @@ test_core_SOURCES = ../src/ch_list.cc \
                     ../src/murmur.cc \
                     ../src/murmur.h \
                     test_core.cc
-test_core_LDADD = -lcheck
+test_core_LDADD = -lgtest -lpthread
 
 TESTS = test_core
