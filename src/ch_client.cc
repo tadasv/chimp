@@ -44,7 +44,7 @@ static void _write_cb(uv_write_t *req, int status)
 }
 
 
-Client::Client(ch_server_t *server)
+Client::Client(Server *server)
 {
     this->server = server;
 }

@@ -34,15 +34,22 @@ typedef struct ch_server_settings_ {
 } ch_server_settings_t;
 
 
-typedef struct ch_server_ {
-    uv_loop_t *loop;
-    uv_tcp_t handle;
-    ch_server_settings_t *settings;
-    std::map<std::string, ch_command_t> commands;
-} ch_server_t;
+namespace chimp {
+namespace net {
 
+class Server {
+    public:
+        Server(ch_server_settings_t *settings, uv_loop_t *loop);
+        int Start();
+    public:
+        uv_loop_t *loop;
+        uv_tcp_t handle;
+        ch_server_settings_t *settings;
+        std::map<std::string, ch_command_t> commands;
+};
 
-int ch_server_init(ch_server_t *server, ch_server_settings_t *settings, uv_loop_t *loop);
-int ch_server_start(ch_server_t *server);
+}
+}
+
 
 #endif /* end of include guard */

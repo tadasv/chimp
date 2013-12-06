@@ -31,15 +31,17 @@
 namespace chimp {
 namespace net {
 
+class Server;
+
 class Client {
     public:
-        Client(ch_server_t *server);
+        Client(Server *server);
         ~Client();
         int Init();
         void Write(ch_response_code_t code, const char *error_message);
 
     public:
-        ch_server_t *server;
+        Server *server;
         uv_tcp_t handle;
 };
 

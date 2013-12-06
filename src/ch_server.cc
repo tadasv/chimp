@@ -31,6 +31,10 @@
 #include <ch_protocol.h>
 
 
+namespace chimp {
+namespace net {
+
+
 void _close_cb(uv_handle_t *client_handle)
 {
     chimp::net::Client *client = static_cast<chimp::net::Client*>(client_handle->data);
@@ -110,7 +114,7 @@ static void _read_cb(uv_stream_t *client_handle, ssize_t nread, uv_buf_t buf)
 
 static void _connection_cb(uv_stream_t *server_handle, int status)
 {
-    ch_server_t *server = (ch_server_t*)server_handle->data;
+    chimp::net::Server *server = static_cast<chimp::net::Server*>(server_handle->data);
     chimp::net::Client *client = new chimp::net::Client(server);
 
     if (client->Init() != 0) {
@@ -124,43 +128,40 @@ static void _connection_cb(uv_stream_t *server_handle, int status)
 }
 
 
-int ch_server_init(ch_server_t *server, ch_server_settings_t *settings, uv_loop_t *loop)
+Server::Server(ch_server_settings_t *settings, uv_loop_t *loop)
 {
-    assert(server);
-    assert(loop);
-
-    server->loop = loop;
-    server->settings = settings;
-    server->commands["PING"] = CH_COMMAND_PING;
-    server->commands["DSNEW"] = CH_COMMAND_DSNEW;
-
-    uv_tcp_init(server->loop, &server->handle);
-    server->handle.data = server;
-
-    return 0;
+    this->loop = loop;
+    this->settings = settings;
+    this->commands["PING"] = CH_COMMAND_PING;
+    this->commands["DSNEW"] = CH_COMMAND_DSNEW;
+    uv_tcp_init(this->loop, &this->handle);
+    this->handle.data = this;
 }
 
 
-int ch_server_start(ch_server_t *server)
+int Server::Start()
 {
     int r;
 
-    r = uv_tcp_bind(&server->handle, uv_ip4_addr("0.0.0.0", server->settings->port));
+    r = uv_tcp_bind(&this->handle, uv_ip4_addr("0.0.0.0", this->settings->port));
     if (r) {
-        CH_LOG_ERROR("bind: %s", uv_strerror(uv_last_error(server->loop)));
+        CH_LOG_ERROR("bind: %s", uv_strerror(uv_last_error(this->loop)));
         return -1;
     }
 
-    r = uv_listen((uv_stream_t*)&server->handle,
-                  server->settings->socket_backlog,
+    r = uv_listen((uv_stream_t*)&this->handle,
+                  this->settings->socket_backlog,
                   _connection_cb);
     if (r) {
-        CH_LOG_ERROR("listen: %s", uv_strerror(uv_last_error(server->loop)));
+        CH_LOG_ERROR("listen: %s", uv_strerror(uv_last_error(this->loop)));
         return -1;
     }
 
-    CH_LOG_INFO("starting server on 0.0.0.0:%d", server->settings->port);
+    CH_LOG_INFO("starting server on 0.0.0.0:%d", this->settings->port);
 
     return 0;
 
+}
+
+}
 }
