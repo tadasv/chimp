@@ -33,9 +33,8 @@
 
 void _close_cb(uv_handle_t *client_handle)
 {
-    ch_client_t *client = (ch_client_t*)client_handle->data;
-    ch_client_free(client);
-    free(client);
+    chimp::net::Client *client = static_cast<chimp::net::Client*>(client_handle->data);
+    delete client;
 }
 
 
@@ -53,7 +52,7 @@ static uv_buf_t _alloc_cb(uv_handle_t* client_handle, size_t suggested_size)
 
 static void _read_cb(uv_stream_t *client_handle, ssize_t nread, uv_buf_t buf)
 {
-    ch_client_t *client = (ch_client_t*)client_handle->data;
+    chimp::net::Client *client = static_cast<chimp::net::Client*>(client_handle->data);
 
     if (nread >= 0) {
         msgpack_unpacked msg;
@@ -61,17 +60,17 @@ static void _read_cb(uv_stream_t *client_handle, ssize_t nread, uv_buf_t buf)
 
         if (!msgpack_unpack_next(&msg, buf.base, buf.len, NULL)) {
             CH_LOG_ERROR("read: failed to unpack message");
-            ch_client_write(client, CH_RESPONSE_CODE_USER_ERROR, "invalid message");
+            client->Write(CH_RESPONSE_CODE_USER_ERROR, "invalid message");
         } else if (msg.data.type != MSGPACK_OBJECT_ARRAY ||
             msg.data.via.array.size < 1 ||
             msg.data.via.array.ptr[0].type != MSGPACK_OBJECT_RAW) {
-            ch_client_write(client, CH_RESPONSE_CODE_USER_ERROR, "invalid message");
+            client->Write(CH_RESPONSE_CODE_USER_ERROR, "invalid message");
         } else {
             std::string command_name(msg.data.via.array.ptr[0].via.raw.ptr,
                                      msg.data.via.array.ptr[0].via.raw.size);
             std::map<std::string, ch_command_t>::iterator iter = client->server->commands.find(command_name);
             if (iter == client->server->commands.end()) {
-                ch_client_write(client, CH_RESPONSE_CODE_SERVER_ERROR, "unsupported command");
+                client->Write(CH_RESPONSE_CODE_SERVER_ERROR, "unsupported command");
             } else {
                 ch_command_t command = iter->second;
                 ch_message_t *message = NULL;
@@ -84,11 +83,11 @@ static void _read_cb(uv_stream_t *client_handle, ssize_t nread, uv_buf_t buf)
                         if (message->unserialize(&msg) == 0) {
                             ch_handler_dsnew(client, message);
                         } else {
-                            ch_client_write(client, CH_RESPONSE_CODE_USER_ERROR, "invalid message");
+                            client->Write(CH_RESPONSE_CODE_USER_ERROR, "invalid message");
                         }
                         break;
                     default:
-                        ch_client_write(client, CH_RESPONSE_CODE_SERVER_ERROR, "command not implemented");
+                        client->Write(CH_RESPONSE_CODE_SERVER_ERROR, "command not implemented");
                         break;
                 }
 
@@ -112,12 +111,14 @@ static void _read_cb(uv_stream_t *client_handle, ssize_t nread, uv_buf_t buf)
 static void _connection_cb(uv_stream_t *server_handle, int status)
 {
     ch_server_t *server = (ch_server_t*)server_handle->data;
-    ch_client_t *client = (ch_client_t*)malloc(sizeof(ch_client_t));
+    chimp::net::Client *client = new chimp::net::Client(server);
 
-    if (ch_client_init(client, server)) {
-        free(client);
+    if (client->Init() != 0) {
+        delete client;
         return;
     }
+
+    CH_LOG_INFO("new connection");
 
     uv_read_start((uv_stream_t*)&client->handle, _alloc_cb, _read_cb);
 }

@@ -24,10 +24,14 @@
 #include <ch_log.h>
 #include <ch_client.h>
 
+namespace chimp {
+namespace net {
+
+
 typedef struct ch_write_req_t {
     uv_write_t req;
     uv_buf_t buf;
-    ch_client_t *client;
+    chimp::net::Client *client;
     msgpack_sbuffer *sbuffer;
 } ch_write_req_t;
 
@@ -40,30 +44,35 @@ static void _write_cb(uv_write_t *req, int status)
 }
 
 
-int ch_client_init(ch_client_t *client, ch_server_t *server)
+Client::Client(ch_server_t *server)
+{
+    this->server = server;
+}
+
+
+int Client::Init()
 {
     int r;
 
-    r = uv_tcp_init(server->handle.loop, &client->handle);
+    r = uv_tcp_init(this->server->handle.loop, &this->handle);
     if (r) {
-        CH_LOG_ERROR("uv_tcp_init: %s", uv_strerror((uv_last_error(server->loop))));
+        CH_LOG_ERROR("uv_tcp_init: %s", uv_strerror((uv_last_error(this->server->loop))));
         return r;
     }
 
-    r = uv_accept((uv_stream_t*)&server->handle, (uv_stream_t*)&client->handle);
+    r = uv_accept((uv_stream_t*)&server->handle, (uv_stream_t*)&this->handle);
     if (r) {
         CH_LOG_ERROR("uv_accept: %s", uv_strerror((uv_last_error(server->loop))));
         return r;
     }
 
-    client->server = server;
-    client->handle.data = client;
+    this->handle.data = this;
 
     return 0;
 }
 
 
-void ch_client_write(ch_client_t *client, ch_response_code_t code, const char *error_message)
+void Client::Write(ch_response_code_t code, const char *error_message)
 {
     ch_response_message_t msg(code);
     if (error_message) {
@@ -73,17 +82,20 @@ void ch_client_write(ch_client_t *client, ch_response_code_t code, const char *e
     msgpack_sbuffer *sbuffer = msg.serialize();
 
     ch_write_req_t *req = (ch_write_req_t*)malloc(sizeof(ch_write_req_t));
-    req->client = client;
+    req->client = this;
     req->buf.base = sbuffer->data;
     req->buf.len = sbuffer->size;
     req->sbuffer = sbuffer;
 
     uv_write((uv_write_t*)req,
-             (uv_stream_t*)&client->handle,
+             (uv_stream_t*)&this->handle,
              &req->buf, 1, _write_cb);
 }
 
 
-void ch_client_free(ch_client_t *client)
+Client::~Client()
 {
+}
+
+}
 }

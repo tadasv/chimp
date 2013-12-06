@@ -25,8 +25,8 @@
 #include <ch_client.h>
 
 
-void ch_handler_ping(ch_client_t *client, ch_message_t *message)
+void ch_handler_ping(chimp::net::Client *client, ch_message_t *message)
 {
     CH_LOG_DEBUG("ping handler");
-    ch_client_write(client, CH_RESPONSE_CODE_OK, NULL);
+    client->Write(CH_RESPONSE_CODE_OK, NULL);
 }

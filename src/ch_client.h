@@ -28,14 +28,22 @@
 #include <ch_list.h>
 #include <ch_server.h>
 
-typedef struct ch_client_ {
-    uv_tcp_t handle;
-    ch_server_t *server;
-} ch_client_t;
+namespace chimp {
+namespace net {
 
+class Client {
+    public:
+        Client(ch_server_t *server);
+        ~Client();
+        int Init();
+        void Write(ch_response_code_t code, const char *error_message);
 
-int ch_client_init(ch_client_t *client, ch_server_t *server);
-void ch_client_write(ch_client_t *client, ch_response_code_t code, const char *error_message);
-void ch_client_free(ch_client_t *client);
+    public:
+        ch_server_t *server;
+        uv_tcp_t handle;
+};
+
+}
+}
 
 #endif /* end of include guard */

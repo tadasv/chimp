@@ -26,8 +26,8 @@
 #include <ch_protocol.h>
 #include <ch_client.h>
 
-void ch_handler_ping(ch_client_t *client, ch_message_t *message);
-void ch_handler_dsnew(ch_client_t *client, ch_message_t *message);
+void ch_handler_ping(chimp::net::Client *client, ch_message_t *message);
+void ch_handler_dsnew(chimp::net::Client *client, ch_message_t *message);
 
 #endif /* end of include guard */
 

@@ -28,14 +28,14 @@
 
 extern ch_chimpd_t chimpd;
 
-void ch_handler_dsnew(ch_client_t *client, ch_message_t *message)
+void ch_handler_dsnew(chimp::net::Client *client, ch_message_t *message)
 {
     std::map<std::string, ch_dataset_t*>::iterator iter;
     ch_message_dsnew_t *msg = dynamic_cast<ch_message_dsnew_t*>(message);
 
     iter = chimpd.datasets.find(msg->name);
     if (iter != chimpd.datasets.end()) {
-        ch_client_write(client, CH_RESPONSE_CODE_USER_ERROR, "dataset exists");
+        client->Write(CH_RESPONSE_CODE_USER_ERROR, "dataset exists");
         return;
     }
 
@@ -43,5 +43,5 @@ void ch_handler_dsnew(ch_client_t *client, ch_message_t *message)
 
     chimpd.datasets[msg->name] = dataset;
     CH_LOG_DEBUG("created new dataset: %s, cols: %d", msg->name.c_str(), msg->num_columns);
-    ch_client_write(client, CH_RESPONSE_CODE_OK, NULL);
+    client->Write(CH_RESPONSE_CODE_OK, NULL);
 }
