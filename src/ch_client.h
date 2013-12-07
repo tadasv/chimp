@@ -25,7 +25,6 @@
 
 #include <uv.h>
 #include <ch_protocol.h>
-#include <ch_list.h>
 #include <ch_server.h>
 
 namespace chimp {
