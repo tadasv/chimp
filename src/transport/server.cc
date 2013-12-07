@@ -29,6 +29,7 @@
 #include "transport/client.h"
 #include "transport/error_response.h"
 #include "transport/command/ping.h"
+#include "transport/command/dsnew.h"
 
 
 namespace chimp {
@@ -78,19 +79,22 @@ static void _read_cb(uv_stream_t *client_handle, ssize_t nread, uv_buf_t buf)
         } else {
             std::string command_name(msg.data.via.array.ptr[0].via.raw.ptr,
                                      msg.data.via.array.ptr[0].via.raw.size);
-            std::map<std::string, ch_command_t>::iterator iter = client->server->commands.find(command_name);
+            std::map<std::string, chimp::transport::Server::Command>::iterator iter = client->server->commands.find(command_name);
             if (iter == client->server->commands.end()) {
                 std::shared_ptr<AbstractResponse> response(new ErrorResponse(
                                                             chimp::transport::RESPONSE_CODE_SERVER_ERROR,
                                                             "unsupported command"));
                 client->Write(response);
             } else {
-                ch_command_t command = iter->second;
+                chimp::transport::Server::Command command = iter->second;
                 chimp::transport::command::AbstractCommand *cmd = NULL;
 
                 switch (command) {
-                    case CH_COMMAND_PING:
+                    case chimp::transport::Server::PING:
                         cmd = new chimp::transport::command::Ping(client);
+                        break;
+                    case chimp::transport::Server::DSNEW:
+                        cmd = new chimp::transport::command::DatasetNew(client);
                         break;
                     default:
                         {
@@ -107,6 +111,10 @@ static void _read_cb(uv_stream_t *client_handle, ssize_t nread, uv_buf_t buf)
                         cmd->Execute();
                     } else {
                         CH_LOG_ERROR("failed to unpack message");
+                        std::shared_ptr<AbstractResponse> response(new ErrorResponse(
+                                                                    chimp::transport::RESPONSE_CODE_USER_ERROR,
+                                                                    "failed to unpack message"));
+                        client->Write(response);
                     }
                     delete cmd;
                 }
@@ -144,8 +152,8 @@ Server::Server(ServerSettings settings, uv_loop_t *loop)
 {
     this->loop = loop;
     this->settings_ = settings;
-    this->commands["PING"] = CH_COMMAND_PING;
-    this->commands["DSNEW"] = CH_COMMAND_DSNEW;
+    this->commands["PING"] = chimp::transport::Server::PING;
+    this->commands["DSNEW"] = chimp::transport::Server::DSNEW;
     uv_tcp_init(this->loop, &this->handle);
     this->handle.data = this;
 }

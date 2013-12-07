@@ -25,7 +25,6 @@
 
 #include <uv.h>
 #include <map>
-#include <ch_protocol.h>
 
 
 namespace chimp {
@@ -41,13 +40,18 @@ class Server {
                 int socket_backlog;
         };
 
+        enum Command {
+            PING,
+            DSNEW
+        };
+
         Server(ServerSettings settings, uv_loop_t *loop);
         int Start();
     public:
         uv_loop_t *loop;
         uv_tcp_t handle;
         ServerSettings settings_;
-        std::map<std::string, ch_command_t> commands;
+        std::map<std::string, Command> commands;
 };
 
 }

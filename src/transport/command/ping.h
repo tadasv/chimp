@@ -23,14 +23,11 @@
 #ifndef CH_INCLUDE_GUARD_B3F7ACA4_559D_45B4_9E0F_B1248AF16E1D
 #define CH_INCLUDE_GUARD_B3F7ACA4_559D_45B4_9E0F_B1248AF16E1D
 
-#include <memory>
-
 #include "transport/client.h"
 #include "transport/abstract_response.h"
 #include "transport/command/abstract_command.h"
 
 namespace chimp {
-
 namespace transport {
 namespace command {
 
