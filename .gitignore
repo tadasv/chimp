@@ -14,3 +14,6 @@ tests/test_core
 tests/test_protocol
 src/chimp
 .vagrant
+config/depcomp
+config/install-sh
+config/missing
