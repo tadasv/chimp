@@ -3,6 +3,7 @@
 
 AC_PREREQ([2.65])
 AC_INIT([chimp], [0.1.0], [vilkeliskis.t@gmail.com])
+AM_SILENT_RULES([yes])
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_MACRO_DIR(config)
 AM_INIT_AUTOMAKE(tar-ustar dist-zip foreign subdir-objects)
@@ -17,6 +18,7 @@ CHIMP_ORIG_CXXFLAGS="${CXXFLAGS:-none}"
 
 # Checks for programs.
 AC_PROG_CXX
+AX_CXX_COMPILE_STDCXX_11
 AC_PROG_CC
 
 # Checks for libraries.
