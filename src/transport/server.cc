@@ -27,7 +27,7 @@
 #include <ch_log.h>
 #include "transport/server.h"
 #include "transport/client.h"
-#include <ch_protocol.h>
+#include "transport/error_response.h"
 #include "transport/command/ping.h"
 
 
@@ -64,17 +64,26 @@ static void _read_cb(uv_stream_t *client_handle, ssize_t nread, uv_buf_t buf)
 
         if (!msgpack_unpack_next(&msg, buf.base, buf.len, NULL)) {
             CH_LOG_ERROR("read: failed to unpack message");
-            client->Write(CH_RESPONSE_CODE_USER_ERROR, "invalid message");
+            std::shared_ptr<AbstractResponse> response(new ErrorResponse(
+                                                        chimp::transport::RESPONSE_CODE_USER_ERROR,
+                                                        "invalid message"));
+            client->Write(response);
         } else if (msg.data.type != MSGPACK_OBJECT_ARRAY ||
             msg.data.via.array.size < 1 ||
             msg.data.via.array.ptr[0].type != MSGPACK_OBJECT_RAW) {
-            client->Write(CH_RESPONSE_CODE_USER_ERROR, "invalid message");
+            std::shared_ptr<AbstractResponse> response(new ErrorResponse(
+                                                        chimp::transport::RESPONSE_CODE_USER_ERROR,
+                                                        "invalid message"));
+            client->Write(response);
         } else {
             std::string command_name(msg.data.via.array.ptr[0].via.raw.ptr,
                                      msg.data.via.array.ptr[0].via.raw.size);
             std::map<std::string, ch_command_t>::iterator iter = client->server->commands.find(command_name);
             if (iter == client->server->commands.end()) {
-                client->Write(CH_RESPONSE_CODE_SERVER_ERROR, "unsupported command");
+                std::shared_ptr<AbstractResponse> response(new ErrorResponse(
+                                                            chimp::transport::RESPONSE_CODE_SERVER_ERROR,
+                                                            "unsupported command"));
+                client->Write(response);
             } else {
                 ch_command_t command = iter->second;
                 chimp::transport::command::AbstractCommand *cmd = NULL;
@@ -84,7 +93,12 @@ static void _read_cb(uv_stream_t *client_handle, ssize_t nread, uv_buf_t buf)
                         cmd = new chimp::transport::command::Ping(client);
                         break;
                     default:
-                        client->Write(CH_RESPONSE_CODE_SERVER_ERROR, "command not implemented");
+                        {
+                        std::shared_ptr<AbstractResponse> response(new ErrorResponse(
+                                                                    chimp::transport::RESPONSE_CODE_SERVER_ERROR,
+                                                                    "command not implemented"));
+                        client->Write(response);
+                        }
                         break;
                 }
 

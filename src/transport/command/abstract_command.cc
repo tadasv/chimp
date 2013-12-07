@@ -36,6 +36,12 @@ AbstractCommand::~AbstractCommand()
 {
 }
 
+
+std::shared_ptr<AbstractResponse> AbstractCommand::GetResponse()
+{
+    return response_;
+}
+
 }
 }
 }

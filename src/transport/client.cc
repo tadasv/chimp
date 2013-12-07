@@ -72,14 +72,9 @@ int Client::Init()
 }
 
 
-void Client::Write(ch_response_code_t code, const char *error_message)
+void Client::Write(const std::shared_ptr<AbstractResponse> &response)
 {
-    ch_response_message_t msg(code);
-    if (error_message) {
-        msg.error = error_message;
-    }
-
-    msgpack_sbuffer *sbuffer = msg.serialize();
+    msgpack_sbuffer *sbuffer = response->ToMessagePack();
 
     ch_write_req_t *req = (ch_write_req_t*)malloc(sizeof(ch_write_req_t));
     req->client = this;

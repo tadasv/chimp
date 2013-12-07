@@ -37,7 +37,9 @@ Ping::Ping(chimp::transport::Client *client)
 int Ping::Execute()
 {
     CH_LOG_DEBUG("ping handler");
-    client_->Write(CH_RESPONSE_CODE_OK, NULL);
+    response_.reset(new PingResponse());
+    client_->Write(response_);
+    return 0;
 }
 
 int Ping::FromMessagePack(const msgpack_unpacked *msg)
@@ -58,6 +60,22 @@ msgpack_sbuffer *Ping::ToMessagePack()
     msgpack_packer_free(pk);
     return buffer;
 }
+
+
+msgpack_sbuffer *Ping::PingResponse::ToMessagePack()
+{
+    msgpack_sbuffer* buffer = msgpack_sbuffer_new();
+    msgpack_packer* pk = msgpack_packer_new(buffer, msgpack_sbuffer_write);
+
+    msgpack_pack_array(pk, 3);
+    msgpack_pack_unsigned_int(pk, chimp::transport::RESPONSE_CODE_OK);
+    msgpack_pack_nil(pk);
+    msgpack_pack_nil(pk);
+
+    msgpack_packer_free(pk);
+    return buffer;
+}
+
 
 }
 }

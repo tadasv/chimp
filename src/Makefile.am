@@ -13,6 +13,10 @@ chimp_SOURCES = ch_protocol.cc \
                 ch_chimpd.h \
                 ch_dataset.h \
                 ch_dataset.cc \
+                transport/abstract_response.h \
+                transport/abstract_response.cc \
+                transport/error_response.h \
+                transport/error_response.cc \
                 transport/command/abstract_command.h \
                 transport/command/abstract_command.cc \
                 transport/command/ping.h \

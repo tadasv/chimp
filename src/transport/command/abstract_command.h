@@ -24,6 +24,9 @@
 #define CH_INCLUDE_GUARD_454D92D7_F096_42EC_AF44_128B54EB03D1
 
 #include <msgpack.h>
+#include <memory>
+
+#include "transport/abstract_response.h"
 
 
 namespace chimp {
@@ -38,6 +41,9 @@ class AbstractCommand {
         virtual msgpack_sbuffer *ToMessagePack() = 0;
     protected:
         AbstractCommand();
+        std::shared_ptr<AbstractResponse> GetResponse();
+
+        std::shared_ptr<AbstractResponse> response_;
 };
 
 }

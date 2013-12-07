@@ -24,8 +24,9 @@
 #define CH_INCLUDE_GUARD_9BD9BE69_0AB6_49D1_A4DD_3087EA638D4E
 
 #include <uv.h>
-#include <ch_protocol.h>
+#include <memory>
 #include "transport/server.h"
+#include "transport/abstract_response.h"
 
 namespace chimp {
 namespace transport {
@@ -37,7 +38,7 @@ class Client {
         Client(Server *server);
         ~Client();
         int Init();
-        void Write(ch_response_code_t code, const char *error_message);
+        void Write(const std::shared_ptr<AbstractResponse> &response);
 
     public:
         Server *server;
