@@ -21,7 +21,7 @@
  * SOFTWARE.
  */
 #include <ch_log.h>
-#include <ch_client.h>
+#include "transport/client.h"
 #include "transport/command/ping.h"
 
 
