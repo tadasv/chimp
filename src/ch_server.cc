@@ -29,7 +29,7 @@
 #include <ch_server.h>
 #include <ch_client.h>
 #include <ch_protocol.h>
-#include "transport/ping.h"
+#include "transport/command/ping.h"
 
 
 namespace chimp {
@@ -78,7 +78,6 @@ static void _read_cb(uv_stream_t *client_handle, ssize_t nread, uv_buf_t buf)
                 client->Write(CH_RESPONSE_CODE_SERVER_ERROR, "unsupported command");
             } else {
                 ch_command_t command = iter->second;
-                ch_message_t *message = NULL;
                 chimp::transport::command::AbstractCommand *cmd = NULL;
 
                 switch (command) {
@@ -91,12 +90,12 @@ static void _read_cb(uv_stream_t *client_handle, ssize_t nread, uv_buf_t buf)
                 }
 
                 if (cmd) {
-                    cmd->Execute();
+                    if (cmd->FromMessagePack(&msg) == 0) {
+                        cmd->Execute();
+                    } else {
+                        CH_LOG_ERROR("failed to unpack message");
+                    }
                     delete cmd;
-                }
-
-                if (message) {
-                    delete message;
                 }
             }
             msgpack_unpacked_destroy(&msg);

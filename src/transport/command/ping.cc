@@ -22,7 +22,7 @@
  */
 #include <ch_log.h>
 #include <ch_client.h>
-#include "transport/ping.h"
+#include "transport/command/ping.h"
 
 
 namespace chimp {
