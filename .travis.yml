@@ -6,4 +6,4 @@ branches:
     - master
 before_install:
   - sh ./.travis_bootstrap.sh
-script: ./autogen.sh && ./configure && make && make test
+script: ./autogen.sh && CXXFLAGS="-std=c++0x" ./configure && make && make test
