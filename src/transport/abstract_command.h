@@ -23,6 +23,8 @@
 #ifndef CH_INCLUDE_GUARD_454D92D7_F096_42EC_AF44_128B54EB03D1
 #define CH_INCLUDE_GUARD_454D92D7_F096_42EC_AF44_128B54EB03D1
 
+#include <msgpack.h>
+
 
 namespace chimp {
 namespace transport {
@@ -32,6 +34,8 @@ class AbstractCommand {
     public:
         virtual ~AbstractCommand();
         virtual int Execute() = 0;
+        virtual int FromMessagePack(const msgpack_unpacked *msg) = 0;
+        virtual msgpack_sbuffer *ToMessagePack() = 0;
     protected:
         AbstractCommand();
 };

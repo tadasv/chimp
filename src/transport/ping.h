@@ -35,6 +35,8 @@ class Ping : public AbstractCommand {
     public:
         Ping(chimp::net::Client *client);
         int Execute();
+        int FromMessagePack(const msgpack_unpacked *msg);
+        msgpack_sbuffer *ToMessagePack();
     private:
         chimp::net::Client *client_;
 };

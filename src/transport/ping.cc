@@ -40,6 +40,25 @@ int Ping::Execute()
     client_->Write(CH_RESPONSE_CODE_OK, NULL);
 }
 
+int Ping::FromMessagePack(const msgpack_unpacked *msg)
+{
+    // don't do anything. Ping command is like a singleton
+    return 0;
+}
+
+msgpack_sbuffer *Ping::ToMessagePack()
+{
+    msgpack_sbuffer* buffer = msgpack_sbuffer_new();
+    msgpack_packer* pk = msgpack_packer_new(buffer, msgpack_sbuffer_write);
+
+    msgpack_pack_array(pk, 1);
+    msgpack_pack_raw(pk, 4);
+    msgpack_pack_raw_body(pk, "PING", 4);
+
+    msgpack_packer_free(pk);
+    return buffer;
+}
+
 }
 }
 }
