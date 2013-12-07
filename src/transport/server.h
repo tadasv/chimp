@@ -28,23 +28,25 @@
 #include <ch_protocol.h>
 
 
-typedef struct ch_server_settings_ {
-    int port;
-    int socket_backlog;
-} ch_server_settings_t;
-
-
 namespace chimp {
 namespace transport {
 
 class Server {
     public:
-        Server(ch_server_settings_t *settings, uv_loop_t *loop);
+        class ServerSettings {
+            public:
+                ServerSettings() : port(8000), socket_backlog(128) {};
+
+                int port;
+                int socket_backlog;
+        };
+
+        Server(ServerSettings settings, uv_loop_t *loop);
         int Start();
     public:
         uv_loop_t *loop;
         uv_tcp_t handle;
-        ch_server_settings_t *settings;
+        ServerSettings settings_;
         std::map<std::string, ch_command_t> commands;
 };
 

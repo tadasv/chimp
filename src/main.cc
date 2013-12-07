@@ -83,14 +83,12 @@ static void parse_command_line(int argc, char * const argv[])
 int main(int argc, char * const argv[])
 {
     uv_loop_t *loop = uv_default_loop();
-    ch_server_settings_t server_settings;
 
     parse_command_line(argc, argv);
 
-    server_settings.port = chimpd.settings.port;
-    server_settings.socket_backlog = 128;
-
-    chimp::transport::Server server(&server_settings, loop);
+    chimp::transport::Server::ServerSettings settings;
+    settings.port = chimpd.settings.port;
+    chimp::transport::Server server(settings, loop);
     if (server.Start() != 0) {
         return -1;
     }

@@ -126,10 +126,10 @@ static void _connection_cb(uv_stream_t *server_handle, int status)
 }
 
 
-Server::Server(ch_server_settings_t *settings, uv_loop_t *loop)
+Server::Server(ServerSettings settings, uv_loop_t *loop)
 {
     this->loop = loop;
-    this->settings = settings;
+    this->settings_ = settings;
     this->commands["PING"] = CH_COMMAND_PING;
     this->commands["DSNEW"] = CH_COMMAND_DSNEW;
     uv_tcp_init(this->loop, &this->handle);
@@ -141,21 +141,21 @@ int Server::Start()
 {
     int r;
 
-    r = uv_tcp_bind(&this->handle, uv_ip4_addr("0.0.0.0", this->settings->port));
+    r = uv_tcp_bind(&this->handle, uv_ip4_addr("0.0.0.0", this->settings_.port));
     if (r) {
         CH_LOG_ERROR("bind: %s", uv_strerror(uv_last_error(this->loop)));
         return -1;
     }
 
     r = uv_listen((uv_stream_t*)&this->handle,
-                  this->settings->socket_backlog,
+                  this->settings_.socket_backlog,
                   _connection_cb);
     if (r) {
         CH_LOG_ERROR("listen: %s", uv_strerror(uv_last_error(this->loop)));
         return -1;
     }
 
-    CH_LOG_INFO("starting server on 0.0.0.0:%d", this->settings->port);
+    CH_LOG_INFO("starting server on 0.0.0.0:%d", this->settings_.port);
 
     return 0;
 
