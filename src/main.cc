@@ -28,7 +28,7 @@
 #include <uv.h>
 #include <ch_log.h>
 #include <ch_chimpd.h>
-#include <ch_server.h>
+#include "transport/server.h"
 
 
 ch_chimpd_t chimpd;
@@ -90,7 +90,7 @@ int main(int argc, char * const argv[])
     server_settings.port = chimpd.settings.port;
     server_settings.socket_backlog = 128;
 
-    chimp::net::Server server(&server_settings, loop);
+    chimp::transport::Server server(&server_settings, loop);
     if (server.Start() != 0) {
         return -1;
     }

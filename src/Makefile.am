@@ -6,8 +6,6 @@ chimp_SOURCES = ch_protocol.cc \
                 ch_protocol.h \
                 ch_handlers.h \
                 ch_handler_dsnew.cc \
-                ch_server.h \
-                ch_server.cc \
                 ch_client.h \
                 ch_client.cc \
                 ch_log.cc \
@@ -23,4 +21,6 @@ chimp_SOURCES = ch_protocol.cc \
                 transport/command/abstract_command.cc \
                 transport/command/ping.h \
                 transport/command/ping.cc \
+                transport/server.h \
+                transport/server.cc \
                 main.cc

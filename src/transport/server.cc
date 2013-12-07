@@ -26,19 +26,19 @@
 #include <stdlib.h>
 #include <ch_log.h>
 #include <ch_handlers.h>
-#include <ch_server.h>
+#include "transport/server.h"
 #include <ch_client.h>
 #include <ch_protocol.h>
 #include "transport/command/ping.h"
 
 
 namespace chimp {
-namespace net {
+namespace transport {
 
 
 void _close_cb(uv_handle_t *client_handle)
 {
-    chimp::net::Client *client = static_cast<chimp::net::Client*>(client_handle->data);
+    chimp::transport::Client *client = static_cast<chimp::transport::Client*>(client_handle->data);
     delete client;
 }
 
@@ -57,7 +57,7 @@ static uv_buf_t _alloc_cb(uv_handle_t* client_handle, size_t suggested_size)
 
 static void _read_cb(uv_stream_t *client_handle, ssize_t nread, uv_buf_t buf)
 {
-    chimp::net::Client *client = static_cast<chimp::net::Client*>(client_handle->data);
+    chimp::transport::Client *client = static_cast<chimp::transport::Client*>(client_handle->data);
 
     if (nread >= 0) {
         msgpack_unpacked msg;
@@ -113,8 +113,8 @@ static void _read_cb(uv_stream_t *client_handle, ssize_t nread, uv_buf_t buf)
 
 static void _connection_cb(uv_stream_t *server_handle, int status)
 {
-    chimp::net::Server *server = static_cast<chimp::net::Server*>(server_handle->data);
-    chimp::net::Client *client = new chimp::net::Client(server);
+    chimp::transport::Server *server = static_cast<chimp::transport::Server*>(server_handle->data);
+    chimp::transport::Client *client = new chimp::transport::Client(server);
 
     if (client->Init() != 0) {
         delete client;

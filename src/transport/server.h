@@ -35,7 +35,7 @@ typedef struct ch_server_settings_ {
 
 
 namespace chimp {
-namespace net {
+namespace transport {
 
 class Server {
     public:

@@ -25,10 +25,10 @@
 
 #include <uv.h>
 #include <ch_protocol.h>
-#include <ch_server.h>
+#include "transport/server.h"
 
 namespace chimp {
-namespace net {
+namespace transport {
 
 class Server;
 

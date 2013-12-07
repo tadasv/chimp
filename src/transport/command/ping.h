@@ -33,12 +33,12 @@ namespace command {
 
 class Ping : public AbstractCommand {
     public:
-        Ping(chimp::net::Client *client);
+        Ping(chimp::transport::Client *client);
         int Execute();
         int FromMessagePack(const msgpack_unpacked *msg);
         msgpack_sbuffer *ToMessagePack();
     private:
-        chimp::net::Client *client_;
+        chimp::transport::Client *client_;
 };
 
 }

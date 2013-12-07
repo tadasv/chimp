@@ -28,7 +28,7 @@
 
 extern ch_chimpd_t chimpd;
 
-void ch_handler_dsnew(chimp::net::Client *client, ch_message_t *message)
+void ch_handler_dsnew(chimp::transport::Client *client, ch_message_t *message)
 {
     std::map<std::string, ch_dataset_t*>::iterator iter;
     ch_message_dsnew_t *msg = dynamic_cast<ch_message_dsnew_t*>(message);

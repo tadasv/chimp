@@ -25,13 +25,13 @@
 #include <ch_client.h>
 
 namespace chimp {
-namespace net {
+namespace transport {
 
 
 typedef struct ch_write_req_t {
     uv_write_t req;
     uv_buf_t buf;
-    chimp::net::Client *client;
+    chimp::transport::Client *client;
     msgpack_sbuffer *sbuffer;
 } ch_write_req_t;
 

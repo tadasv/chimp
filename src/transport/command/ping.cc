@@ -29,7 +29,7 @@ namespace chimp {
 namespace transport {
 namespace command {
 
-Ping::Ping(chimp::net::Client *client)
+Ping::Ping(chimp::transport::Client *client)
 {
     client_ = client;
 }
