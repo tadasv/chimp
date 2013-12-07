@@ -1,11 +1,10 @@
-chimp_CXXFLAGS = -I$(top_builddir)/include -I$(top_srcdir)/include
+chimp_CXXFLAGS = -I$(top_srcdir)/src
 
 bin_PROGRAMS = chimp
 
 chimp_SOURCES = ch_protocol.cc \
                 ch_protocol.h \
                 ch_handlers.h \
-                ch_handler_ping.cc \
                 ch_handler_dsnew.cc \
                 ch_server.h \
                 ch_server.cc \
@@ -20,6 +19,8 @@ chimp_SOURCES = ch_protocol.cc \
                 ch_chimpd.h \
                 ch_dataset.h \
                 ch_dataset.cc \
-                murmur.cc \
-                murmur.h \
+                transport/abstract_command.h \
+                transport/abstract_command.cc \
+                transport/ping.h \
+                transport/ping.cc \
                 main.cc

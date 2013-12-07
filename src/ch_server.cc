@@ -29,6 +29,7 @@
 #include <ch_server.h>
 #include <ch_client.h>
 #include <ch_protocol.h>
+#include "transport/ping.h"
 
 
 namespace chimp {
@@ -78,21 +79,20 @@ static void _read_cb(uv_stream_t *client_handle, ssize_t nread, uv_buf_t buf)
             } else {
                 ch_command_t command = iter->second;
                 ch_message_t *message = NULL;
+                chimp::transport::command::AbstractCommand *cmd = NULL;
+
                 switch (command) {
                     case CH_COMMAND_PING:
-                        ch_handler_ping(client, NULL);
-                        break;
-                    case CH_COMMAND_DSNEW:
-                        message = new ch_message_dsnew_t;
-                        if (message->unserialize(&msg) == 0) {
-                            ch_handler_dsnew(client, message);
-                        } else {
-                            client->Write(CH_RESPONSE_CODE_USER_ERROR, "invalid message");
-                        }
+                        cmd = new chimp::transport::command::Ping(client);
                         break;
                     default:
                         client->Write(CH_RESPONSE_CODE_SERVER_ERROR, "command not implemented");
                         break;
+                }
+
+                if (cmd) {
+                    cmd->Execute();
+                    delete cmd;
                 }
 
                 if (message) {
