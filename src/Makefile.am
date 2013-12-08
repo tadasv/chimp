@@ -17,6 +17,8 @@ chimp_SOURCES = ch_log.cc \
                 transport/command/ping.cc \
                 transport/command/dsnew.h \
                 transport/command/dsnew.cc \
+                transport/command/shutdown.h \
+                transport/command/shutdown.cc \
                 transport/server.h \
                 transport/server.cc \
                 transport/client.h \

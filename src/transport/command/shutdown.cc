@@ -20,44 +20,48 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef CH_INCLUDE_GUARD_E328F9CB_3BA1_42DB_978D_FE48847105B7
-#define CH_INCLUDE_GUARD_E328F9CB_3BA1_42DB_978D_FE48847105B7
-
-#include <uv.h>
-#include <map>
+#include <ch_log.h>
+#include "transport/client.h"
+#include "transport/server.h"
+#include "transport/command/shutdown.h"
 
 
 namespace chimp {
 namespace transport {
+namespace command {
 
-class Server {
-    public:
-        class ServerSettings {
-            public:
-                ServerSettings() : port(8000), socket_backlog(128) {};
-
-                int port;
-                int socket_backlog;
-        };
-
-        enum Command {
-            PING,
-            DSNEW,
-            SHUTDOWN
-        };
-
-        Server(ServerSettings settings, uv_loop_t *loop);
-        int Start();
-        int Stop();
-    public:
-        uv_loop_t *loop;
-        uv_tcp_t handle;
-        ServerSettings settings_;
-        std::map<std::string, Command> commands;
-};
-
-}
+Shutdown::Shutdown(chimp::transport::Client *client)
+{
+    client_ = client;
 }
 
 
-#endif /* end of include guard */
+int Shutdown::Execute()
+{
+    CH_LOG_INFO("Received SHUTDOWN command");
+    client_->server->Stop();
+}
+
+
+int Shutdown::FromMessagePack(const msgpack_unpacked *msg)
+{
+    return 0;
+}
+
+
+msgpack_sbuffer *Shutdown::ToMessagePack()
+{
+    msgpack_sbuffer* buffer = msgpack_sbuffer_new();
+    msgpack_packer* pk = msgpack_packer_new(buffer, msgpack_sbuffer_write);
+
+    msgpack_pack_array(pk, 1);
+    msgpack_pack_raw(pk, 8);
+    msgpack_pack_raw_body(pk, "SHUTDOWN", 8);
+
+    msgpack_packer_free(pk);
+    return buffer;
+}
+
+}
+}
+}

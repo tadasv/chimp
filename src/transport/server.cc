@@ -30,6 +30,7 @@
 #include "transport/error_response.h"
 #include "transport/command/ping.h"
 #include "transport/command/dsnew.h"
+#include "transport/command/shutdown.h"
 
 
 namespace chimp {
@@ -96,6 +97,9 @@ static void _read_cb(uv_stream_t *client_handle, ssize_t nread, uv_buf_t buf)
                     case chimp::transport::Server::DSNEW:
                         cmd = new chimp::transport::command::DatasetNew(client);
                         break;
+                    case chimp::transport::Server::SHUTDOWN:
+                        cmd = new chimp::transport::command::Shutdown(client);
+                        break;
                     default:
                         {
                         std::shared_ptr<AbstractResponse> response(new ErrorResponse(
@@ -135,6 +139,8 @@ static void _read_cb(uv_stream_t *client_handle, ssize_t nread, uv_buf_t buf)
 static void _connection_cb(uv_stream_t *server_handle, int status)
 {
     chimp::transport::Server *server = static_cast<chimp::transport::Server*>(server_handle->data);
+    // this is a lean on shutdown, but it does not matter much since OS
+    // will clean up the rest
     chimp::transport::Client *client = new chimp::transport::Client(server);
 
     if (client->Init() != 0) {
@@ -154,6 +160,7 @@ Server::Server(ServerSettings settings, uv_loop_t *loop)
     this->settings_ = settings;
     this->commands["PING"] = chimp::transport::Server::PING;
     this->commands["DSNEW"] = chimp::transport::Server::DSNEW;
+    this->commands["SHUTDOWN"] = chimp::transport::Server::SHUTDOWN;
     uv_tcp_init(this->loop, &this->handle);
     this->handle.data = this;
 }
@@ -181,6 +188,13 @@ int Server::Start()
 
     return 0;
 
+}
+
+
+int Server::Stop()
+{
+    uv_stop(this->loop);
+    return 0;
 }
 
 }
