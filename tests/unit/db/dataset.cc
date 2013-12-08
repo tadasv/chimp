@@ -5,13 +5,20 @@
 
 TEST(Dataset, Constructor)
 {
-    chimp::db::Dataset dataset(2);
+    chimp::db::Dataset dataset("iris", 2);
+}
+
+
+TEST(Dataset, GetName)
+{
+    chimp::db::Dataset dataset("iris.csv", 2);
+    ASSERT_EQ("iris.csv", dataset.GetName());
 }
 
 
 TEST(Dataset, GetSet)
 {
-    chimp::db::Dataset dataset(2);
+    chimp::db::Dataset dataset("iris", 2);
     double value;
 
     ASSERT_EQ(0, dataset.NumRows());

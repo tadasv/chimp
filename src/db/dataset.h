@@ -24,6 +24,7 @@
 #define CH_INCLUDE_GUARD_1A0C8CC8_A220_4850_95B7_56AAF11BA7E4
 
 #include <cstdint>
+#include <string>
 #include <memory>
 #include <vector>
 
@@ -35,12 +36,14 @@ namespace db {
 
 class Dataset {
     public:
-        Dataset(uint32_t ncols);
+        Dataset(const std::string &name, uint32_t ncols);
 
         int SetItem(uint32_t row, uint32_t col, double value);
         int GetItem(uint32_t row, uint32_t col, double *out);
         uint64_t NumRows();
+        std::string GetName();
     private:
+        std::string name_;
         uint64_t ncols_per_row_;
         std::vector<std::unique_ptr<DatasetRow>> rows_;
 

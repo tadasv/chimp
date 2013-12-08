@@ -27,9 +27,16 @@ namespace chimp {
 namespace db {
 
 
-Dataset::Dataset(uint32_t ncols)
+Dataset::Dataset(const std::string &name, uint32_t ncols)
 {
     ncols_per_row_ = ncols;
+    name_ = name;
+}
+
+
+std::string Dataset::GetName()
+{
+    return name_;
 }
 
 
