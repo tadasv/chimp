@@ -40,6 +40,7 @@ int Shutdown::Execute()
 {
     CH_LOG_INFO("Received SHUTDOWN command");
     client_->server->Stop();
+    return 0;
 }
 
 
