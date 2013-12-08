@@ -11,6 +11,8 @@ chimp_SOURCES = ch_log.cc \
                 ch_chimpd.h \
                 ch_dataset.h \
                 ch_dataset.cc \
+                db/row.h \
+                db/row.cc \
                 transport/abstract_response.h \
                 transport/abstract_response.cc \
                 transport/error_response.h \
