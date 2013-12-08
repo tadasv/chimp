@@ -10,8 +10,7 @@ aclocal.m4
 .dirstamp
 *.trs
 *.log
-tests/test_core
-tests/test_protocol
+tests/test_unit
 src/chimp
 .vagrant
 config/depcomp

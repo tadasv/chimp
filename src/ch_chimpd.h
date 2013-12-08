@@ -22,7 +22,6 @@
  */
 #include <map>
 #include <string>
-#include <ch_dataset.h>
 
 
 typedef struct ch_chimpd_settings_ {
@@ -32,5 +31,4 @@ typedef struct ch_chimpd_settings_ {
 
 typedef struct ch_chimpd_ {
     ch_chimpd_settings_t settings;
-    std::map<std::string, ch_dataset_t*> datasets;
 } ch_chimpd_t;

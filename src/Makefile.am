@@ -4,13 +4,7 @@ bin_PROGRAMS = chimp
 
 chimp_SOURCES = ch_log.cc \
                 ch_log.h \
-                ch_row.cc \
-                ch_row.h \
-                ch_table.cc \
-                ch_table.h \
                 ch_chimpd.h \
-                ch_dataset.h \
-                ch_dataset.cc \
                 db/row.h \
                 db/row.cc \
                 transport/abstract_response.h \
