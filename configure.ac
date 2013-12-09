@@ -6,7 +6,7 @@ AC_INIT([chimp], [0.1.0], [vilkeliskis.t@gmail.com])
 AM_SILENT_RULES([yes])
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_MACRO_DIR(config)
-AM_INIT_AUTOMAKE(tar-ustar dist-zip foreign subdir-objects)
+AM_INIT_AUTOMAKE(-Wall -Werror tar-ustar dist-zip foreign subdir-objects)
 
 # This lets us use PACKAGE_VERSION in Makefiles
 AC_SUBST(PACKAGE_VERSION)
@@ -20,6 +20,9 @@ CHIMP_ORIG_CXXFLAGS="${CXXFLAGS:-none}"
 AC_PROG_CXX
 AX_CXX_COMPILE_STDCXX_11
 AC_PROG_CC
+
+CFLAGS="$CFLAGS -Werror -Wall"
+CXXFLAGS="$CXXFLAGS -Werror -Wall"
 
 # Checks for libraries.
 AC_CHECK_LIB([uv], [uv_tcp_init])
