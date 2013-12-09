@@ -26,12 +26,8 @@
 #include <string.h>
 #include <assert.h>
 #include <uv.h>
-#include <ch_chimpd.h>
 #include "core/logging.h"
 #include "transport/server.h"
-
-
-ch_chimpd_t chimpd;
 
 
 static void print_version()
@@ -54,10 +50,13 @@ static void usage(const char *program_name)
 }
 
 
-static void parse_command_line(int argc, char * const argv[])
+int main(int argc, char * const argv[])
 {
+    uv_loop_t *loop = uv_default_loop();
     int cmd_option;
     extern char *optarg;
+
+    chimp::transport::Server::ServerSettings settings;
 
     while ((cmd_option = getopt(argc, argv, "hvp:")) != -1) {
         switch (cmd_option) {
@@ -65,7 +64,7 @@ static void parse_command_line(int argc, char * const argv[])
                 print_version();
                 break;
             case 'p':
-                chimpd.settings.port = strtol(optarg, NULL, 10);
+                settings.port = strtol(optarg, NULL, 10);
                 break;
             case 'h':
             default:
@@ -73,21 +72,6 @@ static void parse_command_line(int argc, char * const argv[])
         }
     }
 
-    if (chimpd.settings.port <= 0) {
-        printf("missing port number\n");
-        usage(argv[0]);
-    }
-}
-
-
-int main(int argc, char * const argv[])
-{
-    uv_loop_t *loop = uv_default_loop();
-
-    parse_command_line(argc, argv);
-
-    chimp::transport::Server::ServerSettings settings;
-    settings.port = chimpd.settings.port;
     chimp::transport::Server server(settings, loop);
     if (server.Start() != 0) {
         return -1;

@@ -4,7 +4,6 @@ bin_PROGRAMS = chimp
 
 chimp_SOURCES = core/logging.cc \
                 core/logging.h \
-                ch_chimpd.h \
                 service/dataset_manager.h \
                 service/dataset_manager.cc \
                 db/dataset.h \
