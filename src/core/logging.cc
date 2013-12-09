@@ -20,20 +20,60 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef CH_INCLUDE_GUARD_D6A483C5_6BAA_4EB9_B6AF_D81EA42921D1
-#define CH_INCLUDE_GUARD_D6A483C5_6BAA_4EB9_B6AF_D81EA42921D1
+#include <iostream>
+
+#include "core/logging.h"
+
+namespace chimp {
+namespace core {
+namespace logging {
 
 
-#define CH_LOG_LEVEL_ERROR    1
-#define CH_LOG_LEVEL_INFO     2
-#define CH_LOG_LEVEL_DEBUG    3
+Logger::Logger(Level level)
+{
+    level_ = level;
+}
 
 
-void ch_log_write(unsigned int level, const char *fmt, ...);
+void Logger::operator()(std::string const &message, char const *function, char const *file, int line)
+{
+    const char *level = "default";
+    switch (level_) {
+        case LEVEL_INFO:
+            level = "info";
+            break;
+        case LEVEL_ERROR:
+            level = "error";
+            break;
+        case LEVEL_DEBUG:
+            level = "debug";
+            break;
+    }
 
-#define CH_LOG_ERROR(msg...) ch_log_write(CH_LOG_LEVEL_ERROR, msg)
-#define CH_LOG_INFO(msg...) ch_log_write(CH_LOG_LEVEL_INFO, msg)
-#define CH_LOG_DEBUG(msg...) ch_log_write(CH_LOG_LEVEL_DEBUG, msg)
+    std::cout << "chimp: [" << level << "] [" << function << " " << file << ":" << line << "]: " << message << std::endl;
+}
 
 
-#endif /* end of include guard */
+Logger &Info()
+{
+    static Logger logger(Level::LEVEL_INFO);
+    return logger;
+}
+
+
+Logger &Error()
+{
+    static Logger logger(Level::LEVEL_ERROR);
+    return logger;
+}
+
+
+Logger &Debug()
+{
+    static Logger logger(Level::LEVEL_DEBUG);
+    return logger;
+}
+
+}
+}
+}

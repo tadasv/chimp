@@ -20,7 +20,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include <ch_log.h>
+#include "core/logging.h"
 #include "transport/client.h"
 #include "transport/server.h"
 #include "transport/command/shutdown.h"

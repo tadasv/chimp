@@ -21,7 +21,7 @@
  * SOFTWARE.
  */
 #include <stdlib.h>
-#include <ch_log.h>
+#include "core/logging.h"
 #include "transport/client.h"
 
 namespace chimp {
@@ -56,13 +56,13 @@ int Client::Init()
 
     r = uv_tcp_init(this->server->handle.loop, &this->handle);
     if (r) {
-        CH_LOG_ERROR("uv_tcp_init: %s", uv_strerror((uv_last_error(this->server->loop))));
+        CH_LOG_ERROR("uv_tcp_init: " << uv_strerror((uv_last_error(this->server->loop))));
         return r;
     }
 
     r = uv_accept((uv_stream_t*)&server->handle, (uv_stream_t*)&this->handle);
     if (r) {
-        CH_LOG_ERROR("uv_accept: %s", uv_strerror((uv_last_error(server->loop))));
+        CH_LOG_ERROR("uv_accept: " << uv_strerror((uv_last_error(server->loop))));
         return r;
     }
 

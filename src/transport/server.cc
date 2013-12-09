@@ -24,7 +24,7 @@
 #include <cassert>
 #include <msgpack.h>
 #include <stdlib.h>
-#include <ch_log.h>
+#include "core/logging.h"
 #include "transport/server.h"
 #include "transport/client.h"
 #include "transport/error_response.h"
@@ -48,7 +48,7 @@ static uv_buf_t _alloc_cb(uv_handle_t* client_handle, size_t suggested_size)
 {
     uv_buf_t buf;
 
-    CH_LOG_DEBUG("alloc_cb: allocating %d bytes", suggested_size);
+    CH_LOG_DEBUG("alloc_cb: allocating " << suggested_size << " bytes");
     buf.base = (char*)malloc(suggested_size);
     buf.len = suggested_size;
 
@@ -127,7 +127,7 @@ static void _read_cb(uv_stream_t *client_handle, ssize_t nread, uv_buf_t buf)
         }
     } else {
         if (nread != UV_EOF) {
-            CH_LOG_ERROR("read: %s", uv_strerror(uv_last_error(client_handle->loop)));
+            CH_LOG_ERROR("read: " << uv_strerror(uv_last_error(client_handle->loop)));
         }
         uv_close((uv_handle_t*)client_handle, _close_cb);
     }
@@ -172,7 +172,7 @@ int Server::Start()
 
     r = uv_tcp_bind(&this->handle, uv_ip4_addr("0.0.0.0", this->settings_.port));
     if (r) {
-        CH_LOG_ERROR("bind: %s", uv_strerror(uv_last_error(this->loop)));
+        CH_LOG_ERROR("bind: " << uv_strerror(uv_last_error(this->loop)));
         return -1;
     }
 
@@ -180,11 +180,11 @@ int Server::Start()
                   this->settings_.socket_backlog,
                   _connection_cb);
     if (r) {
-        CH_LOG_ERROR("listen: %s", uv_strerror(uv_last_error(this->loop)));
+        CH_LOG_ERROR("listen: " << uv_strerror(uv_last_error(this->loop)));
         return -1;
     }
 
-    CH_LOG_INFO("starting server on 0.0.0.0:%d", this->settings_.port);
+    CH_LOG_INFO("starting server on 0.0.0.0:" << this->settings_.port);
 
     return 0;
 

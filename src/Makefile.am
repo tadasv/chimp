@@ -2,8 +2,8 @@ chimp_CXXFLAGS = -I$(top_srcdir)/src
 
 bin_PROGRAMS = chimp
 
-chimp_SOURCES = ch_log.cc \
-                ch_log.h \
+chimp_SOURCES = core/logging.cc \
+                core/logging.h \
                 ch_chimpd.h \
                 service/dataset_manager.h \
                 service/dataset_manager.cc \

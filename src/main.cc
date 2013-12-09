@@ -26,8 +26,8 @@
 #include <string.h>
 #include <assert.h>
 #include <uv.h>
-#include <ch_log.h>
 #include <ch_chimpd.h>
+#include "core/logging.h"
 #include "transport/server.h"
 
 
@@ -36,7 +36,7 @@ ch_chimpd_t chimpd;
 
 static void print_version()
 {
-    CH_LOG_INFO("chimp %s", VERSION);
+    CH_LOG_INFO("chimp " << VERSION);
     exit(0);
 }
 

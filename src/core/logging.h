@@ -20,34 +20,59 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include <stdarg.h>
-#include <stdio.h>
-#include <ch_log.h>
+#include <string>
+#include <sstream>
 
+namespace chimp {
+namespace core {
+namespace logging {
 
-static const char *error_levels[] = {
-    NULL,
-    "error",
-    "info",
-    "debug"
+enum Level {
+    LEVEL_INFO,
+    LEVEL_ERROR,
+    LEVEL_DEBUG
+};
+
+class Logger {
+    public:
+        Logger(Level level);
+
+        void operator()(std::string const &message,
+                        char const *function,
+                        char const *file,
+                        int line);
+    private:
+        Level level_;
 };
 
 
-void ch_log_write(unsigned int level, const char *fmt, ...)
-{
-    int written;
-    char log_buffer[8192];
-    char *p;
-    va_list vargs;
+Logger &Info();
+Logger &Error();
+Logger &Debug();
 
-    written = snprintf(log_buffer, sizeof(log_buffer), "chimp: [%s] ", error_levels[level]);
-    p = log_buffer + written;
-    va_start(vargs, fmt);
-    written = vsnprintf(p, sizeof(log_buffer) - written, fmt, vargs);
-    va_end(vargs);
-    p += written;
-    *p++ = '\n';
-    *p = '\0';
+#define CH_LOG(Logger_, Message_) \
+    Logger_( \
+        static_cast<std::ostringstream&>( \
+            std::ostringstream().flush() << Message_ \
+        ).str(), \
+        __FUNCTION__, \
+        __FILE__, \
+        __LINE__\
+        )
 
-    fprintf(stdout, "%s", log_buffer);
+
+#define CH_LOG_INFO(Message_) CH_LOG(chimp::core::logging::Info(), Message_)
+#define CH_LOG_ERROR(Message_) CH_LOG(chimp::core::logging::Error(), Message_)
+
+#ifdef NDEBUG
+#define CH_LOG_DEBUG(_) do {} while(0)
+#else
+#define CH_LOG_DEBUG(Message_) CH_LOG(chimp::core::logging::Debug(), Message_)
+#endif
+
+
+
+
+}
+}
 }
