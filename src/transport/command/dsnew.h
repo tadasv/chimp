@@ -35,6 +35,11 @@ namespace command {
 
 class DatasetNew : public AbstractCommand {
     public:
+        class Response : public AbstractResponse {
+            public:
+                msgpack_sbuffer *ToMessagePack();
+        };
+
         DatasetNew(chimp::transport::Client *client);
         int Execute();
         int FromMessagePack(const msgpack_unpacked *msg);
