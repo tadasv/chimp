@@ -5,6 +5,10 @@ bin_PROGRAMS = chimp
 chimp_SOURCES = ch_log.cc \
                 ch_log.h \
                 ch_chimpd.h \
+                service/dataset_manager.h \
+                service/dataset_manager.cc \
+                db/dataset.h \
+                db/dataset.cc \
                 db/row.h \
                 db/row.cc \
                 transport/abstract_response.h \
