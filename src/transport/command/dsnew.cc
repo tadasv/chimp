@@ -73,33 +73,16 @@ int DatasetNew::FromMessagePack(const msgpack_unpacked *msg)
         return -1;
     }
 
-    if (msg->data.via.array.size != 2) {
+    if (msg->data.via.array.size != 3 ||
+        msg->data.via.array.ptr[0].type != MSGPACK_OBJECT_RAW ||
+        msg->data.via.array.ptr[1].type != MSGPACK_OBJECT_RAW ||
+        msg->data.via.array.ptr[2].type != MSGPACK_OBJECT_POSITIVE_INTEGER) {
         return -1;
     }
 
-    if (msg->data.via.array.ptr[0].type != MSGPACK_OBJECT_RAW) {
-        return -1;
-    }
-
-    if (msg->data.via.array.ptr[1].type != MSGPACK_OBJECT_ARRAY) {
-        return -1;
-    }
-
-    if (msg->data.via.array.ptr[1].via.array.size != 2) {
-        return -1;
-    }
-
-    if (msg->data.via.array.ptr[1].via.array.ptr[0].type != MSGPACK_OBJECT_RAW) {
-        return -1;
-    }
-
-    if (msg->data.via.array.ptr[1].via.array.ptr[1].type != MSGPACK_OBJECT_POSITIVE_INTEGER) {
-        return -1;
-    }
-
-    num_columns_ = msg->data.via.array.ptr[1].via.array.ptr[1].via.u64;
-    name_ = std::string(msg->data.via.array.ptr[1].via.array.ptr[0].via.raw.ptr,
-                        msg->data.via.array.ptr[1].via.array.ptr[0].via.raw.size);
+    name_ = std::string(msg->data.via.array.ptr[1].via.raw.ptr,
+                        msg->data.via.array.ptr[1].via.raw.size);
+    num_columns_ = msg->data.via.array.ptr[1].via.u64;
 
     return 0;
 }
@@ -110,10 +93,9 @@ msgpack_sbuffer *DatasetNew::ToMessagePack()
     msgpack_sbuffer* buffer = msgpack_sbuffer_new();
     msgpack_packer* pk = msgpack_packer_new(buffer, msgpack_sbuffer_write);
 
-    msgpack_pack_array(pk, 2);
+    msgpack_pack_array(pk, 3);
     msgpack_pack_raw(pk, 5);
     msgpack_pack_raw_body(pk, "DSNEW", 5);
-    msgpack_pack_array(pk, 2);
     msgpack_pack_raw(pk, name_.size());
     msgpack_pack_raw_body(pk, name_.c_str(), name_.size());
     msgpack_pack_unsigned_int(pk, num_columns_);
