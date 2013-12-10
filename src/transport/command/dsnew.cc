@@ -25,10 +25,6 @@
 #include "transport/error_response.h"
 #include "transport/command/dsnew.h"
 
-// TODO don't use globals, figure out a way to access services
-chimp::service::DatasetManager dsmanager;
-
-
 namespace chimp {
 namespace transport {
 namespace command {
@@ -42,7 +38,9 @@ DatasetNew::DatasetNew(chimp::transport::Client *client)
 
 int DatasetNew::Execute()
 {
-    if (dsmanager.DatasetExists(name_)) {
+    auto dsmanager = chimp::service::DatasetManager::GetInstance();
+
+    if (dsmanager->DatasetExists(name_)) {
         response_.reset(new ErrorResponse(
                         chimp::transport::RESPONSE_CODE_USER_ERROR,
                         "dataset exists"));
@@ -51,7 +49,7 @@ int DatasetNew::Execute()
     }
 
     std::shared_ptr<chimp::db::Dataset> dataset(new chimp::db::Dataset(name_, num_columns_));
-    if (dsmanager.AddDataset(dataset) != 0) {
+    if (dsmanager->AddDataset(dataset) != 0) {
         response_.reset(new ErrorResponse(
                         chimp::transport::RESPONSE_CODE_SERVER_ERROR,
                         "failed to create dataset"));

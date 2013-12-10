@@ -34,13 +34,35 @@ namespace chimp {
 namespace service {
 
 
-class DatasetManager {
+class AbstractDatasetManager {
+    public:
+        virtual ~AbstractDatasetManager();
+
+        virtual int AddDataset(std::shared_ptr<chimp::db::Dataset> dataset) = 0;
+        virtual int DatasetExists(std::string name) = 0;
+        virtual std::shared_ptr<chimp::db::Dataset> FindDataset(std::string name) = 0;
+    protected:
+        AbstractDatasetManager();
+};
+
+
+class DatasetManagerImpl : public AbstractDatasetManager {
     public:
         int AddDataset(std::shared_ptr<chimp::db::Dataset> dataset);
         int DatasetExists(std::string name);
         std::shared_ptr<chimp::db::Dataset> FindDataset(std::string name);
     private:
         std::map<std::string, std::shared_ptr<chimp::db::Dataset>> datasets_;
+};
+
+// Singleton factory
+class DatasetManager {
+    public:
+        static AbstractDatasetManager *GetInstance();
+    protected:
+        DatasetManager();
+    private:
+        static std::unique_ptr<AbstractDatasetManager> instance_;
 };
 
 }

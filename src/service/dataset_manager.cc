@@ -26,8 +26,35 @@
 namespace chimp {
 namespace service {
 
+std::unique_ptr<AbstractDatasetManager> DatasetManager::instance_ = NULL;
 
-int DatasetManager::AddDataset(std::shared_ptr<chimp::db::Dataset> dataset)
+
+AbstractDatasetManager::AbstractDatasetManager()
+{
+}
+
+
+AbstractDatasetManager::~AbstractDatasetManager()
+{
+}
+
+
+DatasetManager::DatasetManager()
+{
+}
+
+
+AbstractDatasetManager *DatasetManager::GetInstance()
+{
+    if (instance_ == NULL) {
+        instance_.reset(new DatasetManagerImpl());
+    }
+
+    return instance_.get();
+}
+
+
+int DatasetManagerImpl::AddDataset(std::shared_ptr<chimp::db::Dataset> dataset)
 {
     std::string dataset_name = dataset->GetName();
     if (DatasetExists(dataset_name)) {
@@ -39,7 +66,7 @@ int DatasetManager::AddDataset(std::shared_ptr<chimp::db::Dataset> dataset)
 }
 
 
-int DatasetManager::DatasetExists(std::string name)
+int DatasetManagerImpl::DatasetExists(std::string name)
 {
     auto iterator = datasets_.find(name);
     if (iterator == datasets_.end()) {
@@ -50,7 +77,7 @@ int DatasetManager::DatasetExists(std::string name)
 }
 
 
-std::shared_ptr<chimp::db::Dataset> DatasetManager::FindDataset(std::string name)
+std::shared_ptr<chimp::db::Dataset> DatasetManagerImpl::FindDataset(std::string name)
 {
     auto iterator = datasets_.find(name);
     if (iterator == datasets_.end()) {

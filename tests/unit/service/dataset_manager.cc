@@ -3,15 +3,15 @@
 #include "service/dataset_manager.h"
 
 
-TEST(DatasetManager, Constructor)
+TEST(DatasetManagerImpl, Constructor)
 {
-    chimp::service::DatasetManager manager;
+    chimp::service::DatasetManagerImpl manager;
 }
 
 
-TEST(DatasetManager, AddDataset)
+TEST(DatasetManagerImpl, AddDataset)
 {
-    chimp::service::DatasetManager manager;
+    chimp::service::DatasetManagerImpl manager;
 
     std::shared_ptr<chimp::db::Dataset> dataset(new chimp::db::Dataset("iris", 2));
     std::shared_ptr<chimp::db::Dataset> dataset2(new chimp::db::Dataset("iris", 2));
@@ -21,9 +21,9 @@ TEST(DatasetManager, AddDataset)
 }
 
 
-TEST(DatasetManager, DatasetExists)
+TEST(DatasetManagerImpl, DatasetExists)
 {
-    chimp::service::DatasetManager manager;
+    chimp::service::DatasetManagerImpl manager;
     std::shared_ptr<chimp::db::Dataset> dataset(new chimp::db::Dataset("iris", 2));
 
     EXPECT_EQ(0, manager.DatasetExists("iris"));
@@ -32,9 +32,9 @@ TEST(DatasetManager, DatasetExists)
 }
 
 
-TEST(DatasetManager, FindDataset)
+TEST(DatasetManagerImpl, FindDataset)
 {
-    chimp::service::DatasetManager manager;
+    chimp::service::DatasetManagerImpl manager;
     std::shared_ptr<chimp::db::Dataset> dataset(new chimp::db::Dataset("iris", 2));
 
     EXPECT_EQ(std::shared_ptr<chimp::db::Dataset>(NULL), manager.FindDataset("iris"));
