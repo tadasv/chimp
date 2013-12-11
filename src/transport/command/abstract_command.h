@@ -33,6 +33,8 @@ namespace chimp {
 namespace transport {
 namespace command {
 
+using chimp::transport::response::AbstractResponse;
+
 class AbstractCommand {
     public:
         virtual ~AbstractCommand();

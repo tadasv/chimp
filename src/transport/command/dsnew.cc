@@ -22,7 +22,7 @@
  */
 #include <cassert>
 #include "service/dataset_manager.h"
-#include "transport/error_response.h"
+#include "transport/response.h"
 #include "transport/command/dsnew.h"
 
 namespace chimp {
@@ -41,8 +41,8 @@ int DatasetNew::Execute()
     auto dsmanager = chimp::service::DatasetManager::GetInstance();
 
     if (dsmanager->DatasetExists(name_)) {
-        response_.reset(new ErrorResponse(
-                        chimp::transport::RESPONSE_CODE_USER_ERROR,
+        response_.reset(new chimp::transport::response::ErrorResponse(
+                        chimp::transport::response::RESPONSE_CODE_USER_ERROR,
                         "dataset exists"));
         client_->Write(response_);
         return 0;
@@ -50,14 +50,14 @@ int DatasetNew::Execute()
 
     std::shared_ptr<chimp::db::Dataset> dataset(new chimp::db::Dataset(name_, num_columns_));
     if (dsmanager->AddDataset(dataset) != 0) {
-        response_.reset(new ErrorResponse(
-                        chimp::transport::RESPONSE_CODE_SERVER_ERROR,
+        response_.reset(new chimp::transport::response::ErrorResponse(
+                        chimp::transport::response::RESPONSE_CODE_SERVER_ERROR,
                         "failed to create dataset"));
         client_->Write(response_);
         return 0;
     }
 
-    response_.reset(new Response());
+    response_.reset(new chimp::transport::response::SuccessResponse());
     client_->Write(response_);
     return 0;
 }
@@ -102,20 +102,6 @@ msgpack_sbuffer *DatasetNew::ToMessagePack()
     return buffer;
 }
 
-
-msgpack_sbuffer *DatasetNew::Response::ToMessagePack()
-{
-    msgpack_sbuffer* buffer = msgpack_sbuffer_new();
-    msgpack_packer* pk = msgpack_packer_new(buffer, msgpack_sbuffer_write);
-
-    msgpack_pack_array(pk, 3);
-    msgpack_pack_unsigned_int(pk, chimp::transport::RESPONSE_CODE_OK);
-    msgpack_pack_nil(pk);
-    msgpack_pack_nil(pk);
-
-    msgpack_packer_free(pk);
-    return buffer;
-}
 
 }
 }

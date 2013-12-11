@@ -31,6 +31,8 @@
 namespace chimp {
 namespace transport {
 
+using chimp::transport::response::AbstractResponse;
+
 class Server;
 
 class Client {

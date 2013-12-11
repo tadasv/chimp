@@ -27,7 +27,7 @@
 #include "core/logging.h"
 #include "transport/server.h"
 #include "transport/client.h"
-#include "transport/error_response.h"
+#include "transport/response.h"
 #include "transport/command/ping.h"
 #include "transport/command/dsnew.h"
 #include "transport/command/shutdown.h"
@@ -66,15 +66,15 @@ static void _read_cb(uv_stream_t *client_handle, ssize_t nread, uv_buf_t buf)
 
         if (!msgpack_unpack_next(&msg, buf.base, buf.len, NULL)) {
             CH_LOG_ERROR("read: failed to unpack message");
-            std::shared_ptr<AbstractResponse> response(new ErrorResponse(
-                                                        chimp::transport::RESPONSE_CODE_USER_ERROR,
+            std::shared_ptr<AbstractResponse> response(new chimp::transport::response::ErrorResponse(
+                                                        chimp::transport::response::RESPONSE_CODE_USER_ERROR,
                                                         "invalid message"));
             client->Write(response);
         } else if (msg.data.type != MSGPACK_OBJECT_ARRAY ||
             msg.data.via.array.size < 1 ||
             msg.data.via.array.ptr[0].type != MSGPACK_OBJECT_RAW) {
-            std::shared_ptr<AbstractResponse> response(new ErrorResponse(
-                                                        chimp::transport::RESPONSE_CODE_USER_ERROR,
+            std::shared_ptr<AbstractResponse> response(new chimp::transport::response::ErrorResponse(
+                                                        chimp::transport::response::RESPONSE_CODE_USER_ERROR,
                                                         "invalid message"));
             client->Write(response);
         } else {
@@ -82,8 +82,8 @@ static void _read_cb(uv_stream_t *client_handle, ssize_t nread, uv_buf_t buf)
                                      msg.data.via.array.ptr[0].via.raw.size);
             std::map<std::string, chimp::transport::Server::Command>::iterator iter = client->server->commands.find(command_name);
             if (iter == client->server->commands.end()) {
-                std::shared_ptr<AbstractResponse> response(new ErrorResponse(
-                                                            chimp::transport::RESPONSE_CODE_SERVER_ERROR,
+                std::shared_ptr<AbstractResponse> response(new chimp::transport::response::ErrorResponse(
+                                                            chimp::transport::response::RESPONSE_CODE_SERVER_ERROR,
                                                             "unsupported command"));
                 client->Write(response);
             } else {
@@ -102,8 +102,8 @@ static void _read_cb(uv_stream_t *client_handle, ssize_t nread, uv_buf_t buf)
                         break;
                     default:
                         {
-                        std::shared_ptr<AbstractResponse> response(new ErrorResponse(
-                                                                    chimp::transport::RESPONSE_CODE_SERVER_ERROR,
+                        std::shared_ptr<AbstractResponse> response(new chimp::transport::response::ErrorResponse(
+                                                                    chimp::transport::response::RESPONSE_CODE_SERVER_ERROR,
                                                                     "command not implemented"));
                         client->Write(response);
                         }
@@ -115,8 +115,8 @@ static void _read_cb(uv_stream_t *client_handle, ssize_t nread, uv_buf_t buf)
                         cmd->Execute();
                     } else {
                         CH_LOG_ERROR("failed to unpack message");
-                        std::shared_ptr<AbstractResponse> response(new ErrorResponse(
-                                                                    chimp::transport::RESPONSE_CODE_USER_ERROR,
+                        std::shared_ptr<AbstractResponse> response(new chimp::transport::response::ErrorResponse(
+                                                                    chimp::transport::response::RESPONSE_CODE_USER_ERROR,
                                                                     "failed to unpack message"));
                         client->Write(response);
                     }

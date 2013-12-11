@@ -22,6 +22,7 @@
  */
 #include "core/logging.h"
 #include "transport/client.h"
+#include "transport/response.h"
 #include "transport/command/ping.h"
 
 
@@ -37,7 +38,7 @@ Ping::Ping(chimp::transport::Client *client)
 int Ping::Execute()
 {
     CH_LOG_DEBUG("ping handler");
-    response_.reset(new PingResponse());
+    response_.reset(new chimp::transport::response::SuccessResponse());
     client_->Write(response_);
     return 0;
 }
@@ -56,21 +57,6 @@ msgpack_sbuffer *Ping::ToMessagePack()
     msgpack_pack_array(pk, 1);
     msgpack_pack_raw(pk, 4);
     msgpack_pack_raw_body(pk, "PING", 4);
-
-    msgpack_packer_free(pk);
-    return buffer;
-}
-
-
-msgpack_sbuffer *Ping::PingResponse::ToMessagePack()
-{
-    msgpack_sbuffer* buffer = msgpack_sbuffer_new();
-    msgpack_packer* pk = msgpack_packer_new(buffer, msgpack_sbuffer_write);
-
-    msgpack_pack_array(pk, 3);
-    msgpack_pack_unsigned_int(pk, chimp::transport::RESPONSE_CODE_OK);
-    msgpack_pack_nil(pk);
-    msgpack_pack_nil(pk);
 
     msgpack_packer_free(pk);
     return buffer;

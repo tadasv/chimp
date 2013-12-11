@@ -24,6 +24,7 @@
 
 namespace chimp {
 namespace transport {
+namespace response {
 
 
 AbstractResponse::AbstractResponse()
@@ -36,5 +37,6 @@ AbstractResponse::~AbstractResponse()
 }
 
 
+}
 }
 }

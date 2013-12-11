@@ -20,13 +20,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef CH_INCLUDE_GUARD_0A919051_0780_4445_B320_12956EA2B1A2
-#define CH_INCLUDE_GUARD_0A919051_0780_4445_B320_12956EA2B1A2
+#ifndef CH_INCLUDE_GUARD_5B57FE21_2CDC_481A_AD21_A7C2F2ACF212
+#define CH_INCLUDE_GUARD_5B57FE21_2CDC_481A_AD21_A7C2F2ACF212
 
 #include "transport/abstract_response.h"
 
 namespace chimp {
 namespace transport {
+namespace response {
 
 class ErrorResponse : public AbstractResponse {
     public:
@@ -37,6 +38,14 @@ class ErrorResponse : public AbstractResponse {
         const char *message_;
 };
 
+
+class SuccessResponse : public AbstractResponse {
+    public:
+        SuccessResponse();
+        msgpack_sbuffer *ToMessagePack();
+};
+
+}
 }
 }
 

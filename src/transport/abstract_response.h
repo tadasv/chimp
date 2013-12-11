@@ -27,6 +27,7 @@
 
 namespace chimp {
 namespace transport {
+namespace response {
 
 enum ResponseCode {
     RESPONSE_CODE_OK = 200,
@@ -44,7 +45,7 @@ class AbstractResponse {
 
 }
 }
-
+}
 
 
 #endif /* end of include guard */

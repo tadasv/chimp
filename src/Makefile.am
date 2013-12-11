@@ -12,8 +12,8 @@ chimp_SOURCES = core/logging.cc \
                 db/row.cc \
                 transport/abstract_response.h \
                 transport/abstract_response.cc \
-                transport/error_response.h \
-                transport/error_response.cc \
+                transport/response.h \
+                transport/response.cc \
                 transport/command/abstract_command.h \
                 transport/command/abstract_command.cc \
                 transport/command/ping.h \

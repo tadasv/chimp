@@ -20,11 +20,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include "transport/error_response.h"
-
+#include "transport/response.h"
 
 namespace chimp {
 namespace transport {
+namespace response {
 
 ErrorResponse::ErrorResponse(ResponseCode code, const char *message)
 {
@@ -51,5 +51,25 @@ msgpack_sbuffer *ErrorResponse::ToMessagePack()
 }
 
 
+SuccessResponse::SuccessResponse()
+{
+}
+
+
+msgpack_sbuffer *SuccessResponse::ToMessagePack()
+{
+    msgpack_sbuffer* buffer = msgpack_sbuffer_new();
+    msgpack_packer* pk = msgpack_packer_new(buffer, msgpack_sbuffer_write);
+
+    msgpack_pack_array(pk, 3);
+    msgpack_pack_unsigned_int(pk, ResponseCode::RESPONSE_CODE_OK);
+    msgpack_pack_nil(pk);
+    msgpack_pack_nil(pk);
+
+    msgpack_packer_free(pk);
+    return buffer;
+}
+
+}
 }
 }
