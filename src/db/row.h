@@ -30,16 +30,59 @@
 namespace chimp {
 namespace db {
 
+/**
+ * Dataset Row.
+ *
+ * This class represents a single in-memory row of a dataset.
+ */
 class DatasetRow {
     public:
+        /**
+         * Constructor.
+         *
+         * @param ncols the number of columns this row will hold.
+         */
         DatasetRow(uint32_t ncols);
+
+        /**
+         * Destructor.
+         */
         ~DatasetRow();
 
+        /**
+         * Set column value.
+         *
+         * @param slot column index.
+         * @param value value to store.
+         *
+         * @return 0 on success.
+         */
         int SetColumn(uint32_t slot, double value);
+
+        /**
+         * Get column value.
+         *
+         * @return 0 on success.
+         */
         int GetColumn(uint32_t slot, double *out);
+
+        /**
+         * Get row dimensions.
+         *
+         * @return number of columns the row can hold.
+         */
         uint32_t NumColumns();
     private:
+        /**
+         * Number of columns.
+         *
+         * This variable holds the length of ``data_``.
+         */
         uint32_t ncols_;
+
+        /**
+         * Pointer to raw data.
+         */
         std::unique_ptr<double, std::default_delete<double[]>> data_;
 };
 
