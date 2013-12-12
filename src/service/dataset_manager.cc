@@ -77,6 +77,12 @@ int DatasetManagerImpl::DatasetExists(std::string name)
 }
 
 
+const std::map<std::string, std::shared_ptr<chimp::db::Dataset>> &DatasetManagerImpl::GetDatasets() const
+{
+    return datasets_;
+}
+
+
 std::shared_ptr<chimp::db::Dataset> DatasetManagerImpl::FindDataset(std::string name)
 {
     auto iterator = datasets_.find(name);

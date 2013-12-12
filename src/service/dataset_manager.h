@@ -41,6 +41,7 @@ class AbstractDatasetManager {
         virtual int AddDataset(std::shared_ptr<chimp::db::Dataset> dataset) = 0;
         virtual int DatasetExists(std::string name) = 0;
         virtual std::shared_ptr<chimp::db::Dataset> FindDataset(std::string name) = 0;
+        virtual const std::map<std::string, std::shared_ptr<chimp::db::Dataset>> &GetDatasets() const = 0;
     protected:
         AbstractDatasetManager();
 };
@@ -51,6 +52,7 @@ class DatasetManagerImpl : public AbstractDatasetManager {
         int AddDataset(std::shared_ptr<chimp::db::Dataset> dataset);
         int DatasetExists(std::string name);
         std::shared_ptr<chimp::db::Dataset> FindDataset(std::string name);
+        const std::map<std::string, std::shared_ptr<chimp::db::Dataset>> &GetDatasets() const;
     private:
         std::map<std::string, std::shared_ptr<chimp::db::Dataset>> datasets_;
 };

@@ -20,45 +20,42 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef CH_INCLUDE_GUARD_E328F9CB_3BA1_42DB_978D_FE48847105B7
-#define CH_INCLUDE_GUARD_E328F9CB_3BA1_42DB_978D_FE48847105B7
+#ifndef CH_INCLUDE_GUARD_2E69307B_5B0B_4352_8EE6_178EA524BCB8
+#define CH_INCLUDE_GUARD_2E69307B_5B0B_4352_8EE6_178EA524BCB8
 
-#include <uv.h>
-#include <map>
-
+//#include <pair>
+#include <vector>
+#include "db/dataset.h"
+#include "transport/client.h"
+#include "transport/command/abstract_command.h"
 
 namespace chimp {
 namespace transport {
+namespace command {
 
-class Server {
+class DatasetList : public AbstractCommand {
     public:
-        class ServerSettings {
+        class Response : public AbstractResponse {
             public:
-                ServerSettings() : port(8000), socket_backlog(128) {};
+                Response();
 
-                int port;
-                int socket_backlog;
+                void AddItem(const std::string &dataset_name, 
+                             const chimp::db::Dataset::Dimensions &dims);
+                msgpack_sbuffer *ToMessagePack();
+            private:
+                std::vector<std::pair<std::string, chimp::db::Dataset::Dimensions>> elements_;
         };
 
-        enum Command {
-            PING,
-            DSNEW,
-            DSLIST,
-            SHUTDOWN
-        };
-
-        Server(ServerSettings settings, uv_loop_t *loop);
-        int Start();
-        int Stop();
-    public:
-        uv_loop_t *loop;
-        uv_tcp_t handle;
-        ServerSettings settings_;
-        std::map<std::string, Command> commands;
+        DatasetList(chimp::transport::Client *client);
+        int Execute();
+        int FromMessagePack(const msgpack_unpacked *msg);
+        msgpack_sbuffer *ToMessagePack();
+    private:
+        chimp::transport::Client *client_;
 };
 
 }
 }
-
+}
 
 #endif /* end of include guard */

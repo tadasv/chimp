@@ -20,6 +20,8 @@ chimp_SOURCES = core/logging.cc \
                 transport/command/ping.cc \
                 transport/command/dsnew.h \
                 transport/command/dsnew.cc \
+                transport/command/dslist.h \
+                transport/command/dslist.cc \
                 transport/command/shutdown.h \
                 transport/command/shutdown.cc \
                 transport/server.h \
