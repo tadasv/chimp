@@ -36,12 +36,18 @@ namespace db {
 
 class Dataset {
     public:
+        struct Dimensions {
+            uint64_t cols;
+            uint64_t rows;
+        };
+
         Dataset(const std::string &name, uint32_t ncols);
 
         int SetItem(uint32_t row, uint32_t col, double value);
         int GetItem(uint32_t row, uint32_t col, double *out);
         uint64_t NumRows();
         std::string GetName();
+        Dimensions GetDimensions() const;
     private:
         std::string name_;
         uint64_t ncols_per_row_;

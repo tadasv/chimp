@@ -16,6 +16,26 @@ TEST(Dataset, GetName)
 }
 
 
+TEST(Datast, GetDimensions)
+{
+    chimp::db::Dataset dataset("iris.csv", 2);
+
+    chimp::db::Dataset::Dimensions dims = dataset.GetDimensions();
+    ASSERT_EQ(0, dims.rows);
+    ASSERT_EQ(2, dims.cols);
+
+    dataset.SetItem(0, 0, 10);
+    dims = dataset.GetDimensions();
+    ASSERT_EQ(1, dims.rows);
+    ASSERT_EQ(2, dims.cols);
+
+    dataset.SetItem(1, 0, 10);
+    dims = dataset.GetDimensions();
+    ASSERT_EQ(2, dims.rows);
+    ASSERT_EQ(2, dims.cols);
+}
+
+
 TEST(Dataset, GetSet)
 {
     chimp::db::Dataset dataset("iris", 2);

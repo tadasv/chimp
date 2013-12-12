@@ -78,5 +78,14 @@ uint64_t Dataset::NumRows()
     return rows_.size();
 }
 
+
+Dataset::Dimensions Dataset::GetDimensions() const
+{
+    Dataset::Dimensions dims;
+    dims.rows = rows_.size();
+    dims.cols = ncols_per_row_;
+    return dims;
+}
+
 }
 }
