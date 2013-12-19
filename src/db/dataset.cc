@@ -79,9 +79,9 @@ uint64_t Dataset::NumRows()
 }
 
 
-Dataset::Dimensions Dataset::GetDimensions() const
+chimp::db::dataset::Dimensions Dataset::GetDimensions() const
 {
-    Dataset::Dimensions dims;
+    chimp::db::dataset::Dimensions dims;
     dims.rows = rows_.size();
     dims.cols = ncols_per_row_;
     return dims;

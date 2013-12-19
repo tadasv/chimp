@@ -77,9 +77,9 @@ DatasetList::Response::Response()
 
 
 void DatasetList::Response::AddItem(const std::string &dataset_name,
-                                    const chimp::db::Dataset::Dimensions &dims)
+                                    const chimp::db::dataset::Dimensions &dims)
 {
-    std::pair<std::string, chimp::db::Dataset::Dimensions> element(dataset_name, dims);
+    std::pair<std::string, chimp::db::dataset::Dimensions> element(dataset_name, dims);
     elements_.push_back(element);
 }
 

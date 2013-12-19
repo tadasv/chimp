@@ -4,6 +4,8 @@ noinst_PROGRAMS = test_unit
 
 test_unit_SOURCES = ../src/db/row.h \
                     ../src/db/row.cc \
+                    ../src/db/abstract_dataset.h \
+                    ../src/db/abstract_dataset.cc \
                     ../src/db/dataset.h \
                     ../src/db/dataset.cc \
                     ../src/service/dataset_manager.cc \

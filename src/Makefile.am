@@ -6,6 +6,8 @@ chimp_SOURCES = core/logging.cc \
                 core/logging.h \
                 service/dataset_manager.h \
                 service/dataset_manager.cc \
+                db/abstract_dataset.h \
+                db/abstract_dataset.cc \
                 db/dataset.h \
                 db/dataset.cc \
                 db/row.h \

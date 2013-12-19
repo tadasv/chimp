@@ -20,7 +20,7 @@ TEST(Datast, GetDimensions)
 {
     chimp::db::Dataset dataset("iris.csv", 2);
 
-    chimp::db::Dataset::Dimensions dims = dataset.GetDimensions();
+    chimp::db::dataset::Dimensions dims = dataset.GetDimensions();
     ASSERT_EQ(0, dims.rows);
     ASSERT_EQ(2, dims.cols);
 

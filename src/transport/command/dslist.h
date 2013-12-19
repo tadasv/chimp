@@ -40,10 +40,10 @@ class DatasetList : public AbstractCommand {
                 Response();
 
                 void AddItem(const std::string &dataset_name, 
-                             const chimp::db::Dataset::Dimensions &dims);
+                             const chimp::db::dataset::Dimensions &dims);
                 msgpack_sbuffer *ToMessagePack();
             private:
-                std::vector<std::pair<std::string, chimp::db::Dataset::Dimensions>> elements_;
+                std::vector<std::pair<std::string, chimp::db::dataset::Dimensions>> elements_;
         };
 
         DatasetList(chimp::transport::Client *client);

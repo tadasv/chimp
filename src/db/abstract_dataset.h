@@ -20,39 +20,34 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef CH_INCLUDE_GUARD_1A0C8CC8_A220_4850_95B7_56AAF11BA7E4
-#define CH_INCLUDE_GUARD_1A0C8CC8_A220_4850_95B7_56AAF11BA7E4
+#ifndef CH_INCLUDE_GUARD_1A2B85D6_395E_4607_9A01_56B5F4DF6CF4
+#define CH_INCLUDE_GUARD_1A2B85D6_395E_4607_9A01_56B5F4DF6CF4
 
 #include <cstdint>
 #include <string>
-#include <memory>
-#include <vector>
-
-#include "db/abstract_dataset.h"
-#include "db/row.h"
 
 
 namespace chimp {
 namespace db {
+namespace dataset {
 
-class Dataset : public chimp::db::dataset::AbstractDataset {
-    public:
-        Dataset(const std::string &name, uint32_t ncols);
-
-        int SetItem(uint32_t row, uint32_t col, double value);
-        int GetItem(uint32_t row, uint32_t col, double *out);
-        uint64_t NumRows();
-        std::string GetName();
-        chimp::db::dataset::Dimensions GetDimensions() const;
-    private:
-        std::string name_;
-        uint64_t ncols_per_row_;
-        std::vector<std::unique_ptr<DatasetRow>> rows_;
-
+struct Dimensions {
+    uint64_t cols;
+    uint64_t rows;
 };
 
-}
-}
+
+class AbstractDataset {
+    public:
+        virtual ~AbstractDataset();
+
+        virtual std::string GetName() = 0;
+        virtual Dimensions GetDimensions() const = 0;
+};
+
+};
+}; // namespace db
+}; // namespace chimp
 
 
 #endif /* end of include guard */
