@@ -87,5 +87,62 @@ chimp::db::dataset::Dimensions Dataset::GetDimensions() const
     return dims;
 }
 
+namespace dataset {
+
+Dataset::Dataset(const std::string &name, uint32_t ncols)
+{
+    name_ = name;
+    max_ncols_ = ncols;
+    data_.set_size(0, ncols);
 }
+
+
+std::string Dataset::GetName()
+{
+    return name_;
 }
+
+
+Dimensions Dataset::GetDimensions() const
+{
+    Dimensions dims;
+    dims.cols = data_.n_cols;
+    dims.rows = data_.n_rows;
+    return dims;
+}
+
+
+int Dataset::SetItem(uint32_t row, uint32_t col, double value)
+{
+    if (row >= data_.n_rows || col >= data_.n_cols) {
+        return -1;
+    }
+
+    data_(row, col) = value;
+
+    return 0;
+}
+
+
+int Dataset::GetItem(uint32_t row, uint32_t col, double *out)
+{
+    if (row >= data_.n_rows || col >= data_.n_cols) {
+        return -1;
+    }
+
+    *out = data_(row, col);
+    return 0;
+}
+
+
+int Dataset::Resize(uint32_t rows, uint32_t cols)
+{
+    data_.resize(rows, cols);
+    max_ncols_ = cols;
+    return 0;
+}
+
+
+}; // namespace dataset
+}; // namespace db
+}; // namespace chimp

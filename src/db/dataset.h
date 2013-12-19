@@ -27,6 +27,7 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include <armadillo>
 
 #include "db/abstract_dataset.h"
 #include "db/row.h"
@@ -51,8 +52,27 @@ class Dataset : public chimp::db::dataset::AbstractDataset {
 
 };
 
-}
-}
+
+namespace dataset {
+
+class Dataset : public AbstractDataset {
+    public:
+        Dataset(const std::string &name, uint32_t ncols);
+
+        std::string GetName();
+        chimp::db::dataset::Dimensions GetDimensions() const;
+        int SetItem(uint32_t row, uint32_t col, double value);
+        int GetItem(uint32_t row, uint32_t col, double *out);
+        int Resize(uint32_t rows, uint32_t cols);
+    private:
+        std::string name_;
+        uint32_t max_ncols_;
+        arma::mat data_;
+};
+
+}; // namespace dataset
+}; // namespace db
+}; // namespace chimp
 
 
 #endif /* end of include guard */

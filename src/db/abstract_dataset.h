@@ -45,7 +45,7 @@ class AbstractDataset {
         virtual Dimensions GetDimensions() const = 0;
 };
 
-};
+}; // namespace dataset
 }; // namespace db
 }; // namespace chimp
 

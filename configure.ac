@@ -3,7 +3,7 @@
 
 AC_PREREQ([2.65])
 AC_INIT([chimp], [0.1.0], [vilkeliskis.t@gmail.com])
-AM_SILENT_RULES([yes])
+AM_SILENT_RULES([no])
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_MACRO_DIR(config)
 AM_INIT_AUTOMAKE(-Wall -Werror tar-ustar dist-zip foreign subdir-objects)
@@ -31,6 +31,11 @@ AC_CHECK_LIB([msgpack], [msgpack_version])
 
 # Checks for header files.
 AC_CHECK_HEADERS([limits.h stddef.h stdint.h stdlib.h string.h uv.h bsd/string.h msgpack.h])
+
+AC_LANG_PUSH([C++])
+AC_CHECK_LIB([armadillo], [])
+AC_CHECK_HEADERS([armadillo])
+AC_LANG_POP([C++])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_TYPE_INT16_T
