@@ -27,7 +27,7 @@
 #include <string>
 #include <memory>
 
-#include "db/dataset.h"
+#include "db/abstract_dataset.h"
 
 
 namespace chimp {
@@ -38,10 +38,10 @@ class AbstractDatasetManager {
     public:
         virtual ~AbstractDatasetManager();
 
-        virtual int AddDataset(std::shared_ptr<chimp::db::Dataset> dataset) = 0;
+        virtual int AddDataset(std::shared_ptr<chimp::db::dataset::AbstractDataset> dataset) = 0;
         virtual int DatasetExists(std::string name) = 0;
-        virtual std::shared_ptr<chimp::db::Dataset> FindDataset(std::string name) = 0;
-        virtual const std::map<std::string, std::shared_ptr<chimp::db::Dataset>> &GetDatasets() const = 0;
+        virtual std::shared_ptr<chimp::db::dataset::AbstractDataset> FindDataset(std::string name) = 0;
+        virtual const std::map<std::string, std::shared_ptr<chimp::db::dataset::AbstractDataset>> &GetDatasets() const = 0;
     protected:
         AbstractDatasetManager();
 };
@@ -49,12 +49,12 @@ class AbstractDatasetManager {
 
 class DatasetManagerImpl : public AbstractDatasetManager {
     public:
-        int AddDataset(std::shared_ptr<chimp::db::Dataset> dataset);
+        int AddDataset(std::shared_ptr<chimp::db::dataset::AbstractDataset> dataset);
         int DatasetExists(std::string name);
-        std::shared_ptr<chimp::db::Dataset> FindDataset(std::string name);
-        const std::map<std::string, std::shared_ptr<chimp::db::Dataset>> &GetDatasets() const;
+        std::shared_ptr<chimp::db::dataset::AbstractDataset> FindDataset(std::string name);
+        const std::map<std::string, std::shared_ptr<chimp::db::dataset::AbstractDataset>> &GetDatasets() const;
     private:
-        std::map<std::string, std::shared_ptr<chimp::db::Dataset>> datasets_;
+        std::map<std::string, std::shared_ptr<chimp::db::dataset::AbstractDataset>> datasets_;
 };
 
 // Singleton factory

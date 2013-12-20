@@ -24,6 +24,7 @@
 #include "service/dataset_manager.h"
 #include "transport/response.h"
 #include "transport/command/dsnew.h"
+#include "db/dataset.h"
 
 namespace chimp {
 namespace transport {
@@ -48,7 +49,7 @@ int DatasetNew::Execute()
         return 0;
     }
 
-    std::shared_ptr<chimp::db::Dataset> dataset(new chimp::db::Dataset(name_, num_columns_));
+    std::shared_ptr<chimp::db::dataset::AbstractDataset> dataset(new chimp::db::dataset::Dataset(name_, num_columns_));
     if (dsmanager->AddDataset(dataset) != 0) {
         response_.reset(new chimp::transport::response::ErrorResponse(
                         chimp::transport::response::RESPONSE_CODE_SERVER_ERROR,

@@ -10,8 +10,6 @@ chimp_SOURCES = core/logging.cc \
                 db/abstract_dataset.cc \
                 db/dataset.h \
                 db/dataset.cc \
-                db/row.h \
-                db/row.cc \
                 transport/abstract_response.h \
                 transport/abstract_response.cc \
                 transport/response.h \

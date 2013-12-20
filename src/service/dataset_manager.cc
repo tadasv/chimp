@@ -54,7 +54,7 @@ AbstractDatasetManager *DatasetManager::GetInstance()
 }
 
 
-int DatasetManagerImpl::AddDataset(std::shared_ptr<chimp::db::Dataset> dataset)
+int DatasetManagerImpl::AddDataset(std::shared_ptr<chimp::db::dataset::AbstractDataset> dataset)
 {
     std::string dataset_name = dataset->GetName();
     if (DatasetExists(dataset_name)) {
@@ -77,13 +77,13 @@ int DatasetManagerImpl::DatasetExists(std::string name)
 }
 
 
-const std::map<std::string, std::shared_ptr<chimp::db::Dataset>> &DatasetManagerImpl::GetDatasets() const
+const std::map<std::string, std::shared_ptr<chimp::db::dataset::AbstractDataset>> &DatasetManagerImpl::GetDatasets() const
 {
     return datasets_;
 }
 
 
-std::shared_ptr<chimp::db::Dataset> DatasetManagerImpl::FindDataset(std::string name)
+std::shared_ptr<chimp::db::dataset::AbstractDataset> DatasetManagerImpl::FindDataset(std::string name)
 {
     auto iterator = datasets_.find(name);
     if (iterator == datasets_.end()) {

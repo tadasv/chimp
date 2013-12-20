@@ -22,71 +22,8 @@
  */
 #include "db/dataset.h"
 
-
 namespace chimp {
 namespace db {
-
-
-Dataset::Dataset(const std::string &name, uint32_t ncols)
-{
-    ncols_per_row_ = ncols;
-    name_ = name;
-}
-
-
-std::string Dataset::GetName()
-{
-    return name_;
-}
-
-
-int Dataset::SetItem(uint32_t row, uint32_t col, double value)
-{
-    if (col >= ncols_per_row_) {
-        return -1;
-    }
-
-    DatasetRow *row_ptr = NULL;
-    if (row < rows_.size()) {
-        row_ptr = rows_[row].get();
-    } else {
-        if (row != rows_.size()) {
-            return -1;
-        }
-
-        row_ptr = new DatasetRow(ncols_per_row_);
-        rows_.push_back(std::unique_ptr<DatasetRow>(row_ptr));
-    }
-
-    return row_ptr->SetColumn(col, value);
-}
-
-
-int Dataset::GetItem(uint32_t row, uint32_t col, double *out)
-{
-    if (col >= ncols_per_row_ || row >= rows_.size()) {
-        return -1;
-    }
-
-    DatasetRow *row_ptr = rows_[row].get();
-    return row_ptr->GetColumn(col, out);
-}
-
-
-uint64_t Dataset::NumRows()
-{
-    return rows_.size();
-}
-
-
-chimp::db::dataset::Dimensions Dataset::GetDimensions() const
-{
-    chimp::db::dataset::Dimensions dims;
-    dims.rows = rows_.size();
-    dims.cols = ncols_per_row_;
-    return dims;
-}
-
 namespace dataset {
 
 Dataset::Dataset(const std::string &name, uint32_t ncols)

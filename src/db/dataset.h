@@ -30,29 +30,10 @@
 #include <armadillo>
 
 #include "db/abstract_dataset.h"
-#include "db/row.h"
 
 
 namespace chimp {
 namespace db {
-
-class Dataset : public chimp::db::dataset::AbstractDataset {
-    public:
-        Dataset(const std::string &name, uint32_t ncols);
-
-        int SetItem(uint32_t row, uint32_t col, double value);
-        int GetItem(uint32_t row, uint32_t col, double *out);
-        uint64_t NumRows();
-        std::string GetName();
-        chimp::db::dataset::Dimensions GetDimensions() const;
-    private:
-        std::string name_;
-        uint64_t ncols_per_row_;
-        std::vector<std::unique_ptr<DatasetRow>> rows_;
-
-};
-
-
 namespace dataset {
 
 class Dataset : public AbstractDataset {
