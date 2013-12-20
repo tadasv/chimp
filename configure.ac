@@ -30,11 +30,11 @@ AC_CHECK_LIB([bsd], [strlcpy])
 AC_CHECK_LIB([msgpack], [msgpack_version])
 
 # Checks for header files.
-AC_CHECK_HEADERS([limits.h stddef.h stdint.h stdlib.h string.h uv.h bsd/string.h msgpack.h])
+AC_CHECK_HEADERS([limits.h stddef.h stdint.h stdlib.h string.h uv.h msgpack.h])
 
 AC_LANG_PUSH([C++])
-AC_CHECK_LIB([armadillo], [])
-AC_CHECK_HEADERS([armadillo])
+AC_CHECK_HEADERS([boost/math/complex.hpp], , AC_MSG_ERROR([boost math is required]))
+AC_CHECK_HEADERS([armadillo], , AC_MSG_ERROR([libarmadillo is required]))
 AC_LANG_POP([C++])
 
 # Checks for typedefs, structures, and compiler characteristics.
