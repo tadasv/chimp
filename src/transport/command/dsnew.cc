@@ -81,7 +81,7 @@ int DatasetNew::FromMessagePack(const msgpack_unpacked *msg)
 
     name_ = std::string(msg->data.via.array.ptr[1].via.raw.ptr,
                         msg->data.via.array.ptr[1].via.raw.size);
-    num_columns_ = msg->data.via.array.ptr[1].via.u64;
+    num_columns_ = msg->data.via.array.ptr[2].via.u64;
 
     return 0;
 }
