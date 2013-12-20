@@ -7,7 +7,7 @@ import pychimp
 import regression_settings
 
 
-class DSNEWCommandTestCase(unittest.TestCase):
+class DSLISTCommandTestCase(unittest.TestCase):
     def setUp(self):
         self.proc = subprocess.Popen(regression_settings.chimp_location)
         sleep(1)
@@ -17,17 +17,25 @@ class DSNEWCommandTestCase(unittest.TestCase):
         self.c.close()
         self.proc.kill()
 
-    def test_dsnew(self):
-        resp = self.c.dsnew()
-        self.assertEqual(400, resp.response_code)
-        self.assertTrue(resp.error)
+    def test_dslist(self):
+        resp = self.c.dslist()
+        self.assertEqual(200, resp.response_code)
+        self.assertEqual(0, len(resp.data))
 
         dataset_name = str(uuid.uuid4())
-        resp = self.c.dsnew(dataset_name, 4)
+        self.c.dsnew(dataset_name, 4)
+        resp = self.c.dslist()
         self.assertEqual(200, resp.response_code)
-        self.assertEqual(None, resp.data)
-        self.assertEqual(None, resp.error)
+        self.assertEqual(1, len(resp.data))
+        self.assertEqual({
+            'name': dataset_name,
+            'dimensions': {
+                'rows': 0,
+                'columns': 4,
+            }}, resp.data[0])
 
-        resp = self.c.dsnew(dataset_name, 4)
-        self.assertEqual(400, resp.response_code)
-        self.assertTrue(resp.error)
+        dataset_name = str(uuid.uuid4())
+        self.c.dsnew(dataset_name, 8)
+        resp = self.c.dslist()
+        self.assertEqual(200, resp.response_code)
+        self.assertEqual(2, len(resp.data))
