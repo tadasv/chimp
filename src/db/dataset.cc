@@ -80,6 +80,35 @@ int Dataset::Resize(uint32_t rows, uint32_t cols)
 }
 
 
+int Dataset::Append(const std::vector<double> &new_data)
+{
+    // vector length must be a multiple of number of columns
+    if (new_data.size() % data_.n_cols != 0) {
+        return -1;
+    }
+
+    uint32_t new_rows = new_data.size() / data_.n_cols;
+    if (new_rows == 0) {
+        return 0;
+    }
+
+    // expand dataset to fit new data
+    uint32_t starting_row = data_.n_rows;
+    uint32_t starting_column = 0;
+    Resize(data_.n_rows + new_rows, data_.n_cols);
+
+    for (uint32_t i = 0; i < new_data.size(); ++i) {
+        data_(starting_row, starting_column++) = new_data[i];
+        if (starting_column == data_.n_cols) {
+            starting_column = 0;
+            starting_row++;
+        }
+    }
+
+    return 0;
+}
+
+
 }; // namespace dataset
 }; // namespace db
 }; // namespace chimp

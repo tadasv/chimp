@@ -25,6 +25,7 @@
 
 #include <cstdint>
 #include <string>
+#include <vector>
 
 
 namespace chimp {
@@ -43,6 +44,9 @@ class AbstractDataset {
 
         virtual std::string GetName() = 0;
         virtual Dimensions GetDimensions() const = 0;
+        virtual int SetItem(uint32_t row, uint32_t col, double value) = 0;
+        virtual int GetItem(uint32_t row, uint32_t col, double *out) = 0;
+        virtual int Append(const std::vector<double> &data) = 0;
 };
 
 }; // namespace dataset

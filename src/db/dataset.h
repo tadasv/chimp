@@ -45,6 +45,7 @@ class Dataset : public AbstractDataset {
         int SetItem(uint32_t row, uint32_t col, double value);
         int GetItem(uint32_t row, uint32_t col, double *out);
         int Resize(uint32_t rows, uint32_t cols);
+        int Append(const std::vector<double> &data);
     private:
         std::string name_;
         uint32_t max_ncols_;

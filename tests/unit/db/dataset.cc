@@ -75,3 +75,38 @@ TEST(Dataset, GetSet)
     ASSERT_NEAR(0, value, 1e-300);
     ASSERT_EQ(-1, dataset2.GetItem(0, 2, &value));
 }
+
+
+TEST(Dataset, Append)
+{
+    chimp::db::dataset::Dataset dataset("iris", 4);
+    chimp::db::dataset::Dimensions dims;
+    std::vector<double> data;
+
+    ASSERT_EQ(0, dataset.Append(data));
+    dims = dataset.GetDimensions();
+    ASSERT_EQ(0, dims.rows);
+    ASSERT_EQ(4, dims.cols);
+
+    data.push_back(1);
+    ASSERT_EQ(-1, dataset.Append(data));
+    dims = dataset.GetDimensions();
+    ASSERT_EQ(0, dims.rows);
+    ASSERT_EQ(4, dims.cols);
+
+    data.push_back(2);
+    data.push_back(3);
+    data.push_back(4);
+    ASSERT_EQ(0, dataset.Append(data));
+    dims = dataset.GetDimensions();
+    ASSERT_EQ(1, dims.rows);
+    ASSERT_EQ(4, dims.cols);
+
+    for (int i = 0; i < 16; i++) {
+        data.push_back(3.3);
+    }
+    ASSERT_EQ(0, dataset.Append(data));
+    dims = dataset.GetDimensions();
+    ASSERT_EQ(6, dims.rows);
+    ASSERT_EQ(4, dims.cols);
+}
