@@ -30,6 +30,7 @@
 #include "transport/response.h"
 #include "transport/command/ping.h"
 #include "transport/command/dsnew.h"
+#include "transport/command/dsappend.h"
 #include "transport/command/dslist.h"
 #include "transport/command/shutdown.h"
 
@@ -101,6 +102,9 @@ static void _read_cb(uv_stream_t *client_handle, ssize_t nread, uv_buf_t buf)
                     case chimp::transport::Server::DSLIST:
                         cmd = new chimp::transport::command::DatasetList(client);
                         break;
+                    case chimp::transport::Server::DSAPPEND:
+                        cmd = new chimp::transport::command::DatasetAppend(client);
+                        break;
                     case chimp::transport::Server::SHUTDOWN:
                         cmd = new chimp::transport::command::Shutdown(client);
                         break;
@@ -164,6 +168,7 @@ Server::Server(ServerSettings settings, uv_loop_t *loop)
     this->settings_ = settings;
     this->commands["PING"] = chimp::transport::Server::PING;
     this->commands["DSNEW"] = chimp::transport::Server::DSNEW;
+    this->commands["DSAPPEND"] = chimp::transport::Server::DSAPPEND;
     this->commands["DSLIST"] = chimp::transport::Server::DSLIST;
     this->commands["SHUTDOWN"] = chimp::transport::Server::SHUTDOWN;
     uv_tcp_init(this->loop, &this->handle);

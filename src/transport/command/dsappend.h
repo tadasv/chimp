@@ -20,46 +20,35 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef CH_INCLUDE_GUARD_E328F9CB_3BA1_42DB_978D_FE48847105B7
-#define CH_INCLUDE_GUARD_E328F9CB_3BA1_42DB_978D_FE48847105B7
+#ifndef CH_INCLUDE_GUARD_144CC605_ADAA_4391_8A55_FE6D0212580F
+#define CH_INCLUDE_GUARD_144CC605_ADAA_4391_8A55_FE6D0212580F
 
-#include <uv.h>
-#include <map>
+#include <string>
+#include <vector>
 
+#include "transport/client.h"
+#include "transport/abstract_response.h"
+#include "transport/command/abstract_command.h"
 
 namespace chimp {
 namespace transport {
+namespace command {
 
-class Server {
+class DatasetAppend : public AbstractCommand {
     public:
-        class ServerSettings {
-            public:
-                ServerSettings() : port(8000), socket_backlog(128) {};
-
-                int port;
-                int socket_backlog;
-        };
-
-        enum Command {
-            PING,
-            DSNEW,
-            DSAPPEND,
-            DSLIST,
-            SHUTDOWN
-        };
-
-        Server(ServerSettings settings, uv_loop_t *loop);
-        int Start();
-        int Stop();
-    public:
-        uv_loop_t *loop;
-        uv_tcp_t handle;
-        ServerSettings settings_;
-        std::map<std::string, Command> commands;
+        DatasetAppend(chimp::transport::Client *client);
+        int Execute();
+        int FromMessagePack(const msgpack_unpacked *msg);
+        msgpack_sbuffer *ToMessagePack();
+    private:
+        chimp::transport::Client *client_;
+        std::string dataset_name_;
+        std::vector<double> data_;
 };
 
-}
-}
+}; // namespace command
+}; // namespace transport
+}; // namespace chimp
 
 
 #endif /* end of include guard */
