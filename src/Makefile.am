@@ -2,6 +2,8 @@ chimp_CXXFLAGS = -I$(top_srcdir)/src
 
 bin_PROGRAMS = chimp
 
+chimp_LDADD = -larmadillo
+
 chimp_SOURCES = core/logging.cc \
                 core/logging.h \
                 service/dataset_manager.h \
@@ -10,6 +12,10 @@ chimp_SOURCES = core/logging.cc \
                 db/abstract_dataset.cc \
                 db/dataset.h \
                 db/dataset.cc \
+                ml/abstract_model.h \
+                ml/abstract_model.cc \
+                ml/linear_regression.h \
+                ml/linear_regression.cc \
                 transport/abstract_response.h \
                 transport/abstract_response.cc \
                 transport/response.h \

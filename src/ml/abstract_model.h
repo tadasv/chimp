@@ -20,42 +20,38 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef CH_INCLUDE_GUARD_1A0C8CC8_A220_4850_95B7_56AAF11BA7E4
-#define CH_INCLUDE_GUARD_1A0C8CC8_A220_4850_95B7_56AAF11BA7E4
+#ifndef CH_INCLUDE_GUARD_98DE2924_91FE_4315_BBFD_5BA0F8C2DCF0
+#define CH_INCLUDE_GUARD_98DE2924_91FE_4315_BBFD_5BA0F8C2DCF0
 
-#include <cstdint>
-#include <string>
+#include <msgpack.h>
 #include <memory>
-#include <vector>
-#include <armadillo>
-
-#include "db/abstract_dataset.h"
-
 
 namespace chimp {
-namespace db {
-namespace dataset {
+namespace ml {
+namespace model {
 
-class Dataset : public AbstractDataset {
+class AbstractModelResult {
     public:
-        Dataset(const std::string &name, uint32_t ncols);
-
-        std::string GetName();
-        chimp::db::dataset::Dimensions GetDimensions() const;
-        int SetItem(uint32_t row, uint32_t col, double value);
-        int GetItem(uint32_t row, uint32_t col, double *out);
-        int Resize(uint32_t rows, uint32_t cols);
-        int Append(const std::vector<double> &data);
-        const arma::mat &RawData() const { return data_; };
-    private:
-        std::string name_;
-        uint32_t max_ncols_;
-        arma::mat data_;
+        virtual ~AbstractModelResult();
+        virtual msgpack_sbuffer *ToMessagePack() = 0;
 };
 
-}; // namespace dataset
-}; // namespace db
-}; // namespace chimp
 
+class AbstractModelInput {
+    public:
+        virtual ~AbstractModelInput();
+};
+
+
+class AbstractModel {
+    public:
+        virtual ~AbstractModel();
+        virtual int Build(const AbstractModelInput *input) = 0;
+        virtual std::shared_ptr<AbstractModelResult> Predict(const AbstractModelInput *input) const = 0;
+};
+
+}; // namespace model
+}; // namespace ml
+}; // namespace chimp
 
 #endif /* end of include guard */

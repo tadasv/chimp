@@ -20,42 +20,49 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef CH_INCLUDE_GUARD_1A0C8CC8_A220_4850_95B7_56AAF11BA7E4
-#define CH_INCLUDE_GUARD_1A0C8CC8_A220_4850_95B7_56AAF11BA7E4
+#ifndef CH_INCLUDE_GUARD_7B0EF209_754A_41C5_BD80_4A67A824EA5F
+#define CH_INCLUDE_GUARD_7B0EF209_754A_41C5_BD80_4A67A824EA5F
 
 #include <cstdint>
 #include <string>
-#include <memory>
 #include <vector>
 #include <armadillo>
-
 #include "db/abstract_dataset.h"
-
+#include "ml/abstract_model.h"
 
 namespace chimp {
-namespace db {
-namespace dataset {
+namespace ml {
+namespace model {
 
-class Dataset : public AbstractDataset {
+class LinearRegression : public AbstractModel {
     public:
-        Dataset(const std::string &name, uint32_t ncols);
+        class BuildInput : public AbstractModelInput {
+            public:
+                chimp::db::dataset::AbstractDataset *dataset;
+                std::vector<uint32_t> feature_columns;
+                uint32_t response_column;
+        };
 
-        std::string GetName();
-        chimp::db::dataset::Dimensions GetDimensions() const;
-        int SetItem(uint32_t row, uint32_t col, double value);
-        int GetItem(uint32_t row, uint32_t col, double *out);
-        int Resize(uint32_t rows, uint32_t cols);
-        int Append(const std::vector<double> &data);
-        const arma::mat &RawData() const { return data_; };
+        class PredictionInput : public AbstractModelInput {
+            public:
+                std::vector<double> data;
+        };
+
+        class PredictionResult : public AbstractModelResult {
+            public:
+                msgpack_sbuffer *ToMessagePack();
+                std::vector<double> predictions;
+        };
+
+        int Build(const AbstractModelInput *input);
+        std::shared_ptr<AbstractModelResult> Predict(const AbstractModelInput *input) const;
+
     private:
-        std::string name_;
-        uint32_t max_ncols_;
-        arma::mat data_;
+        arma::vec parameters_;
 };
 
-}; // namespace dataset
-}; // namespace db
+}; // namespace model
+}; // namespace ml
 }; // namespace chimp
-
 
 #endif /* end of include guard */

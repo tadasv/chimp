@@ -20,42 +20,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef CH_INCLUDE_GUARD_1A0C8CC8_A220_4850_95B7_56AAF11BA7E4
-#define CH_INCLUDE_GUARD_1A0C8CC8_A220_4850_95B7_56AAF11BA7E4
-
-#include <cstdint>
-#include <string>
-#include <memory>
-#include <vector>
-#include <armadillo>
-
-#include "db/abstract_dataset.h"
-
+#include "ml/abstract_model.h"
 
 namespace chimp {
-namespace db {
-namespace dataset {
+namespace ml {
+namespace model {
 
-class Dataset : public AbstractDataset {
-    public:
-        Dataset(const std::string &name, uint32_t ncols);
+AbstractModelResult::~AbstractModelResult()
+{
+}
 
-        std::string GetName();
-        chimp::db::dataset::Dimensions GetDimensions() const;
-        int SetItem(uint32_t row, uint32_t col, double value);
-        int GetItem(uint32_t row, uint32_t col, double *out);
-        int Resize(uint32_t rows, uint32_t cols);
-        int Append(const std::vector<double> &data);
-        const arma::mat &RawData() const { return data_; };
-    private:
-        std::string name_;
-        uint32_t max_ncols_;
-        arma::mat data_;
-};
 
-}; // namespace dataset
-}; // namespace db
+AbstractModelInput::~AbstractModelInput()
+{
+}
+
+
+AbstractModel::~AbstractModel()
+{
+}
+
+}; // namespace model
+}; // namespace ml
 }; // namespace chimp
-
-
-#endif /* end of include guard */
