@@ -24,6 +24,7 @@
 #define CH_INCLUDE_GUARD_98DE2924_91FE_4315_BBFD_5BA0F8C2DCF0
 
 #include <msgpack.h>
+#include <string>
 #include <memory>
 
 namespace chimp {
@@ -46,8 +47,12 @@ class AbstractModelInput {
 class AbstractModel {
     public:
         virtual ~AbstractModel();
+        const std::string &GetName() const { return name_; };
+        void SetName(std::string name) { name_ = name; };
         virtual int Build(const AbstractModelInput *input) = 0;
         virtual std::shared_ptr<AbstractModelResult> Predict(const AbstractModelInput *input) const = 0;
+    protected:
+        std::string name_;
 };
 
 }; // namespace model

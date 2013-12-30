@@ -161,6 +161,14 @@ static double iris_data [] = {
 };
 
 
+TEST(LinearRegression, SetGetName)
+{
+    chimp::ml::model::LinearRegression lm;
+    lm.SetName("linear_model");
+    ASSERT_EQ("linear_model", lm.GetName());
+}
+
+
 TEST(LinearRegression, Build)
 {
     std::vector<double> data_to_load;
