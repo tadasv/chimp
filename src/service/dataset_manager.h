@@ -67,8 +67,8 @@ class DatasetManager {
         static std::unique_ptr<AbstractDatasetManager> instance_;
 };
 
-}
-}
+} // namespace service
+} // namespace chimp
 
 
 #endif /* end of include guard */
