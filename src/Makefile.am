@@ -34,6 +34,12 @@ chimp_SOURCES = core/logging.cc \
                 transport/command/dslist.cc \
                 transport/command/shutdown.h \
                 transport/command/shutdown.cc \
+                transport/command/modnew.h \
+                transport/command/modnew.cc \
+                transport/command/modbuild.h \
+                transport/command/modbuild.cc \
+                transport/command/modpredict.h \
+                transport/command/modpredict.cc \
                 transport/server.h \
                 transport/server.cc \
                 transport/client.h \

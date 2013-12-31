@@ -20,54 +20,43 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef CH_INCLUDE_GUARD_7B0EF209_754A_41C5_BD80_4A67A824EA5F
-#define CH_INCLUDE_GUARD_7B0EF209_754A_41C5_BD80_4A67A824EA5F
+#ifndef CH_INCLUDE_GUARD_8FE7CAB5_FA4B_4AD5_B11B_9FEDF6C9395F
+#define CH_INCLUDE_GUARD_8FE7CAB5_FA4B_4AD5_B11B_9FEDF6C9395F
 
-#include <cstdint>
 #include <string>
-#include <vector>
-#include <armadillo>
-#include "db/abstract_dataset.h"
+#include <memory>
+#include "transport/client.h"
+#include "transport/command/abstract_command.h"
 #include "ml/abstract_model.h"
 
 namespace chimp {
-namespace ml {
-namespace model {
+namespace transport {
+namespace command {
 
-class LinearRegression : public AbstractModel {
+class ModelPredict : public AbstractCommand {
     public:
-        class BuildInput : public AbstractModelInput {
+        class Response : public AbstractResponse {
             public:
-                int FromMessagePack(const msgpack_object *msg);
-
-                chimp::db::dataset::AbstractDataset *dataset;
-                std::string dataset_name;
-                std::vector<uint32_t> feature_columns;
-                uint32_t response_column;
-        };
-
-        class PredictionInput : public AbstractModelInput {
-            public:
-                int FromMessagePack(const msgpack_object *msg);
-
-                std::vector<double> data;
-        };
-
-        class PredictionResult : public AbstractModelResult {
-            public:
+                Response();
+                void SetResponse(const msgpack_sbuffer *data);
                 msgpack_sbuffer *ToMessagePack();
-                std::vector<double> predictions;
+            private:
+                std::unique_ptr<char[]> serialized_data_;
+                uint32_t data_size_;
         };
 
-        int Build(const AbstractModelInput *input);
-        std::shared_ptr<AbstractModelResult> Predict(const AbstractModelInput *input) const;
-
+        ModelPredict(chimp::transport::Client *client);
+        int Execute();
+        int FromMessagePack(const msgpack_unpacked *msg);
+        msgpack_sbuffer *ToMessagePack();
     private:
-        arma::vec parameters_;
+        chimp::transport::Client *client_;
+        std::string model_name_;
+        std::shared_ptr<chimp::ml::model::AbstractModelInput> model_input_;
 };
 
-}; // namespace model
-}; // namespace ml
+}; // namespace command
+}; // namespace transport
 }; // namespace chimp
 
 #endif /* end of include guard */

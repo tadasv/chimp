@@ -25,8 +25,10 @@
 
 #include <cassert>
 #include <iostream>
+#include "core/logging.h"
 #include "db/dataset.h"
 #include "ml/linear_regression.h"
+#include "service/dataset_manager.h"
 
 namespace chimp {
 namespace ml {
@@ -37,9 +39,22 @@ int LinearRegression::Build(const AbstractModelInput *input)
     assert(input);
 
     const BuildInput *build_input = dynamic_cast<const BuildInput*>(input);
-    chimp::db::dataset::Dataset *dataset = dynamic_cast<chimp::db::dataset::Dataset*>(build_input->dataset);
+    chimp::db::dataset::Dataset *dataset;
+
+    // TODO need to fix this, we currently set dataset in unit tests
+    // but pass in dataset name via the api.
+    if (build_input->dataset) {
+        dataset = dynamic_cast<chimp::db::dataset::Dataset*>(build_input->dataset);
+    } else {
+        auto manager = chimp::service::DatasetManager::GetInstance();
+        if (!manager->DatasetExists(build_input->dataset_name)) {
+            return -1;
+        }
+
+        dataset = dynamic_cast<chimp::db::dataset::Dataset*>(manager->FindDataset(build_input->dataset_name).get());
+    }
     auto n_cols = build_input->feature_columns.size();
-    auto dims = build_input->dataset->GetDimensions();
+    auto dims = dataset->GetDimensions();
 
     // TODO handle armadillo exceptions
     arma::mat features;
@@ -56,6 +71,8 @@ int LinearRegression::Build(const AbstractModelInput *input)
     arma::mat Q, R;
     arma::qr(Q, R, features);
     arma::solve(parameters_, R, arma::trans(Q) * responses);
+
+    CH_LOG_DEBUG("parameters: " << parameters_);
 
     return 0;
 }
@@ -93,9 +110,111 @@ std::shared_ptr<AbstractModelResult> LinearRegression::Predict(const AbstractMod
 }
 
 
+int LinearRegression::BuildInput::FromMessagePack(const msgpack_object *msg)
+{
+    // msg is third arg of the MODBUILD command. It depends on the model
+    // implementation to decide what do to if it's not there.
+    if (msg == NULL) {
+        return -1;
+    }
+
+    if (msg->type != MSGPACK_OBJECT_MAP) {
+        return -1;
+    }
+
+    // 3 key/value items in the map:
+    // dataset_name, features, response
+    if (msg->via.map.size != 3) {
+        return -1;
+    }
+
+    for (uint32_t i = 0; i < msg->via.map.size; ++i) {
+        if (msg->via.map.ptr[i].key.type != MSGPACK_OBJECT_RAW) {
+            return -1;
+        }
+
+        const char *key = msg->via.map.ptr[i].key.via.raw.ptr;
+        auto key_size = msg->via.map.ptr[i].key.via.raw.size;
+        if (strncmp(key, "dataset_name", key_size) == 0) {
+            if (msg->via.map.ptr[i].val.type != MSGPACK_OBJECT_RAW) {
+                return -1;
+            }
+            dataset_name = std::string(msg->via.map.ptr[i].val.via.raw.ptr,
+                                       msg->via.map.ptr[i].val.via.raw.size);
+        } else if (strncmp(key, "features", key_size) == 0) {
+            if (msg->via.map.ptr[i].val.type != MSGPACK_OBJECT_ARRAY) {
+                return -1;
+            }
+
+            for (uint32_t j = 0; j < msg->via.map.ptr[i].val.via.array.size; ++j) {
+                if (msg->via.map.ptr[i].val.via.array.ptr[j].type != MSGPACK_OBJECT_POSITIVE_INTEGER) {
+                    return -1;
+                }
+
+                feature_columns.push_back(msg->via.map.ptr[i].val.via.array.ptr[j].via.u64);
+            }
+        } else if (strncmp(key, "response", key_size) == 0) {
+            if (msg->via.map.ptr[i].val.type != MSGPACK_OBJECT_POSITIVE_INTEGER) {
+                return -1;
+            }
+
+            response_column = msg->via.map.ptr[i].val.via.u64;
+        } else {
+            return -1;
+        }
+    }
+
+    return 0;
+}
+
+
+int LinearRegression::PredictionInput::FromMessagePack(const msgpack_object *msg)
+{
+    if (msg == NULL) {
+        return -1;
+    }
+
+    if (msg->type != MSGPACK_OBJECT_ARRAY) {
+        return -1;
+    }
+
+    for (uint32_t i = 0; i < msg->via.array.size; ++i) {
+        switch (msg->via.array.ptr[i].type) {
+            case MSGPACK_OBJECT_POSITIVE_INTEGER:
+                data.push_back(static_cast<double>(msg->via.array.ptr[i].via.u64));
+                break;
+            case MSGPACK_OBJECT_NEGATIVE_INTEGER:
+                data.push_back(static_cast<double>(msg->via.array.ptr[i].via.i64));
+                break;
+            case MSGPACK_OBJECT_DOUBLE:
+                data.push_back(msg->via.array.ptr[i].via.dec);
+                break;
+            default:
+                return -1;
+                break;
+        }
+    }
+
+    return 0;
+}
+
+
 msgpack_sbuffer *LinearRegression::PredictionResult::ToMessagePack()
 {
-    return NULL;
+    msgpack_sbuffer *buffer = msgpack_sbuffer_new();
+    msgpack_packer *pk = msgpack_packer_new(buffer, msgpack_sbuffer_write);
+
+    msgpack_pack_map(pk, 1);
+    msgpack_pack_raw(pk, 9);
+    msgpack_pack_raw_body(pk, "responses", 9);
+    msgpack_pack_array(pk, predictions.size());
+
+    for (uint32_t i = 0; i < predictions.size(); ++i) {
+        msgpack_pack_double(pk, predictions[i]);
+    }
+
+    msgpack_packer_free(pk);
+    return buffer;
 }
 
 

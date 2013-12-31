@@ -32,6 +32,9 @@
 #include "transport/command/dsnew.h"
 #include "transport/command/dsappend.h"
 #include "transport/command/dslist.h"
+#include "transport/command/modnew.h"
+#include "transport/command/modbuild.h"
+#include "transport/command/modpredict.h"
 #include "transport/command/shutdown.h"
 
 
@@ -105,6 +108,15 @@ static void _read_cb(uv_stream_t *client_handle, ssize_t nread, uv_buf_t buf)
                     case chimp::transport::Server::DSAPPEND:
                         cmd = new chimp::transport::command::DatasetAppend(client);
                         break;
+                    case chimp::transport::Server::MODNEW:
+                        cmd = new chimp::transport::command::ModelNew(client);
+                        break;
+                    case chimp::transport::Server::MODBUILD:
+                        cmd = new chimp::transport::command::ModelBuild(client);
+                        break;
+                    case chimp::transport::Server::MODPREDICT:
+                        cmd = new chimp::transport::command::ModelPredict(client);
+                        break;
                     case chimp::transport::Server::SHUTDOWN:
                         cmd = new chimp::transport::command::Shutdown(client);
                         break;
@@ -170,6 +182,9 @@ Server::Server(ServerSettings settings, uv_loop_t *loop)
     this->commands["DSNEW"] = chimp::transport::Server::DSNEW;
     this->commands["DSAPPEND"] = chimp::transport::Server::DSAPPEND;
     this->commands["DSLIST"] = chimp::transport::Server::DSLIST;
+    this->commands["MODNEW"] = chimp::transport::Server::MODNEW;
+    this->commands["MODBUILD"] = chimp::transport::Server::MODBUILD;
+    this->commands["MODPREDICT"] = chimp::transport::Server::MODPREDICT;
     this->commands["SHUTDOWN"] = chimp::transport::Server::SHUTDOWN;
     uv_tcp_init(this->loop, &this->handle);
     this->handle.data = this;

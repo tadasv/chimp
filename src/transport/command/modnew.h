@@ -20,49 +20,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef CH_INCLUDE_GUARD_E328F9CB_3BA1_42DB_978D_FE48847105B7
-#define CH_INCLUDE_GUARD_E328F9CB_3BA1_42DB_978D_FE48847105B7
+#ifndef CH_INCLUDE_GUARD_03CE3527_0ACD_4EC2_9C81_03FD205CAF93
+#define CH_INCLUDE_GUARD_03CE3527_0ACD_4EC2_9C81_03FD205CAF93
 
-#include <uv.h>
-#include <map>
+#include <string>
 
+#include "transport/client.h"
+#include "transport/command/abstract_command.h"
 
 namespace chimp {
 namespace transport {
+namespace command {
 
-class Server {
+class ModelNew : public AbstractCommand {
     public:
-        class ServerSettings {
-            public:
-                ServerSettings() : port(8000), socket_backlog(128) {};
-
-                int port;
-                int socket_backlog;
-        };
-
-        enum Command {
-            PING,
-            DSNEW,
-            DSAPPEND,
-            DSLIST,
-            MODNEW,
-            MODBUILD,
-            MODPREDICT,
-            SHUTDOWN
-        };
-
-        Server(ServerSettings settings, uv_loop_t *loop);
-        int Start();
-        int Stop();
-    public:
-        uv_loop_t *loop;
-        uv_tcp_t handle;
-        ServerSettings settings_;
-        std::map<std::string, Command> commands;
+        ModelNew(chimp::transport::Client *client);
+        int Execute();
+        int FromMessagePack(const msgpack_unpacked *msg);
+        msgpack_sbuffer *ToMessagePack();
+    private:
+        chimp::transport::Client *client_;
+        std::string name_;
+        std::string type_;
 };
 
-}
-}
-
+}; // namespace command
+}; // namespace transport
+}; // namespace chimp
 
 #endif /* end of include guard */

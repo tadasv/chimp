@@ -14,6 +14,8 @@ test_unit_SOURCES = ../src/db/abstract_dataset.h \
                     ../src/service/dataset_manager.cc \
                     ../src/service/model_manager.h \
                     ../src/service/model_manager.cc \
+                    ../src/core/logging.h \
+                    ../src/core/logging.cc \
                     unit/db/dataset.cc \
                     unit/service/dataset_manager.cc \
                     unit/service/model_manager.cc \

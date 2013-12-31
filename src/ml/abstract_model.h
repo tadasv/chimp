@@ -41,6 +41,7 @@ class AbstractModelResult {
 class AbstractModelInput {
     public:
         virtual ~AbstractModelInput();
+        virtual int FromMessagePack(const msgpack_object *msg) = 0;
 };
 
 
