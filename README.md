@@ -10,7 +10,7 @@ replication, networking, api) will be built from scratch.
 ChimpDB comes with [Vagrant](http://www.vagrantup.com "Vagrant") configuration file. The code has been tested on Ubuntu Presice 64bit machine. After launching a Vagrant machine all build dependencies will be installed, to build:
 
     cd /vagrant
-    ./augoten.sh
+    ./autogen.sh
     ./configure
     make
     make test (optional)
@@ -28,7 +28,7 @@ example:
 
 ```python
 >>> import pychimp
->>> c = pychimp.Client(('localhost', 8000)    # instantiate ChimpDB client
+>>> c = pychimp.Client(('localhost', 8000))    # instantiate ChimpDB client
 ```
     
 Suppose we only have setosa class:
@@ -116,7 +116,7 @@ Predicting is very simple:
 
 ```python
 >>> c.modpredict("model1", [3.4, 4.1])
-[200, {'responses': [4.993564620877732, 5.477162697854874]}, 000]
+[200, {'responses': [4.993564620877732, 5.477162697854874]}, None]
 ```
 
 In the example above we are trying to predict two data points: 3.4 and 4.1.
@@ -151,8 +151,9 @@ element is the error message.
 
 * `PING` - Pings the server, a noop command.
 * `SHUTDOWN` - Shuts down the server.
-* `DSNEW <name> <num columns>` - Creates a new dataset with the specified number of columns.
-* `DSLIST` - Lists all available dataset.
+* `DSNEW <dataset name> <num columns>` - Creates a new dataset with the specified number of columns.
+* `DSLIST` - Lists all available datasets.
+* `DSAPPEND <dataset name> <data>` - Append data to the existing dataset. Data is a list of numbers and must be column aligned.
 * `MODNEW <model name> <model type>` - Create a new model. Currently only ``linear_regression`` is a valid model type. 
 * `MODBUILD <model name> [<model specific parameters>]` - Build given model.
 * `MOPREDICT <model name> [model specific data]` - Uses given model to make a prediction.
