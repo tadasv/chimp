@@ -1,5 +1,7 @@
 # ChimpDB [![Build Status](https://travis-ci.org/tadasv/chimp.png?branch=master)](https://travis-ci.org/tadasv/chimp) #
 
+I am looking for contributors. If anyone is interested to work on something crazy hit me up on twitter [@tadasv](http://twitter.com/tadasv) or [@chimpdb](http://twitter.com/chimpdb). If you find this project interesting/useful in any way and would like to help me out -- [tip me](https://www.gittip.com/tadasv/).
+
 **This project is in a VERY early stage**
 
 ChimpDB is a distributed database with built-in machine learning capabilities. In order to achieve the best possible performance, ChimpDB does not rely on any exising database technologies. The entire stack (storage,
