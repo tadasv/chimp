@@ -1,4 +1,4 @@
-# ChimpDB [![Build Status](https://travis-ci.org/tadasv/chimp.png?branch=master)](https://travis-ci.org/tadasv/chimp) #
+# ChimpDB [![Build Status](https://travis-ci.org/tadasv/chimp.png?branch=master)](https://travis-ci.org/tadasv/chimp) [![b](https://d3m7fle8bsg0ws.cloudfront.net/empty.gif)](b) #
 
 I am looking for contributors. If anyone is interested to work on something crazy hit me up on twitter [@tadasv](http://twitter.com/tadasv) or [@chimpdb](http://twitter.com/chimpdb). If you find this project interesting/useful in any way and would like to help me out -- [tip me](https://www.gittip.com/tadasv/).
 
